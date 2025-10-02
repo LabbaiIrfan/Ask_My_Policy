@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { 
   GitCompare, 
   X, 
@@ -12,8 +12,20 @@ import {
   CheckCircle,
   Info,
   Filter,
-  BarChart3
+  BarChart3,
+  HelpCircle,
+  Hospital,
+  Calendar,
+  Bed,
+  Baby,
+  Clock,
+  Stethoscope,
+  Ambulance,
+  UserCheck,
+  Brain,
+  Smile
 } from 'lucide-react';
+// stray Check token removed
 
 interface ComparisonScreenProps {
   onOpenMenu: () => void;
@@ -35,7 +47,7 @@ interface Policy {
   features: FeatureMap;
 }
 
-export function ComparisonScreen({ }: ComparisonScreenProps) {
+export function ComparisonScreen(_props: ComparisonScreenProps) {
   const [selectedPolicies, setSelectedPolicies] = useState<Policy[]>([
     {
       id: '1',
@@ -108,18 +120,62 @@ export function ComparisonScreen({ }: ComparisonScreenProps) {
     }
   ]);
 
-  const compareFeatures: string[] = [
-    'Cashless Hospitals',
-    'Pre-Post Hospitalization',
-    'Room Rent Limit',
-    'Maternity Cover',
-    'Day Care Procedures',
-    'Annual Health Checkup',
-    'Ambulance Cover',
-    'OPD Cover',
-    'Mental Health',
-    'Dental Treatment'
-  ];
+  const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+
+  const featureDefinitions = {
+    'Cashless Hospitals': {
+      description: 'Number of hospitals where you can get treatment without paying upfront. Your insurance company directly settles the bill with the hospital.',
+      icon: Hospital,
+      tip: 'Higher number means more options near you'
+    },
+    'Pre-Post Hospitalization': {
+      description: 'Coverage for medical expenses before admission and after discharge. Includes diagnostic tests, medicines, and follow-up consultations.',
+      icon: Calendar,
+      tip: 'Longer period = better coverage for related expenses'
+    },
+    'Room Rent Limit': {
+      description: 'Maximum amount the insurer will pay for your hospital room per day. Can be a fixed amount or percentage of sum insured.',
+      icon: Bed,
+      tip: '"No Limit" means you can choose any room type'
+    },
+    'Maternity Cover': {
+      description: 'Coverage for pregnancy-related expenses including delivery, pre-natal and post-natal care, and newborn baby expenses.',
+      icon: Baby,
+      tip: 'Usually has a waiting period of 9-36 months'
+    },
+    'Day Care Procedures': {
+      description: 'Medical procedures that don\'t require 24-hour hospitalization but are performed in a hospital setting.',
+      icon: Clock,
+      tip: 'More procedures covered = comprehensive protection'
+    },
+    'Annual Health Checkup': {
+      description: 'Yearly preventive health screening to detect diseases early. Usually includes basic tests like blood work, ECG, etc.',
+      icon: Stethoscope,
+      tip: 'Free checkups help maintain your health proactively'
+    },
+    'Ambulance Cover': {
+      description: 'Coverage for emergency ambulance charges when you need to be transported to the hospital during a medical emergency.',
+      icon: Ambulance,
+      tip: 'Higher limit covers expensive emergency transport'
+    },
+    'OPD Cover': {
+      description: 'Outpatient Department coverage for doctor consultations, medicines, and diagnostic tests that don\'t require hospitalization.',
+      icon: UserCheck,
+      tip: 'Covers everyday medical expenses outside hospital'
+    },
+    'Mental Health': {
+      description: 'Coverage for treatment of mental health conditions including counseling, therapy, and psychiatric consultations.',
+      icon: Brain,
+      tip: 'Important for holistic healthcare coverage'
+    },
+    'Dental Treatment': {
+      description: 'Coverage for dental procedures, surgeries, and treatments that may require hospitalization or are medically necessary.',
+      icon: Smile,
+      tip: 'Usually covers accidental dental injuries and surgeries'
+    }
+  };
+
+  const compareFeatures: string[] = Object.keys(featureDefinitions);
 
   const removePolicy = (policyId: string) => {
     setSelectedPolicies(prev => prev.filter(p => p.id !== policyId));
@@ -128,7 +184,6 @@ export function ComparisonScreen({ }: ComparisonScreenProps) {
   const getBestValue = (feature: string): string | null => {
     const values = selectedPolicies.map(p => p.features[feature] ?? '');
 
-    // Numeric comparisons for counts/durations
     if (feature === 'Cashless Hospitals' || feature === 'Pre-Post Hospitalization') {
       const nums = values.map(v => parseInt(v.replace(/\D/g, '')) || 0);
       const max = Math.max(...nums);
@@ -141,7 +196,6 @@ export function ComparisonScreen({ }: ComparisonScreenProps) {
     }
 
     if (['Maternity Cover', 'Annual Health Checkup', 'OPD Cover', 'Mental Health', 'Dental Treatment'].includes(feature)) {
-      // If any policy has 'Yes', that's considered the best
       return values.includes('Yes') ? 'Yes' : null;
     }
 
@@ -153,6 +207,77 @@ export function ComparisonScreen({ }: ComparisonScreenProps) {
     if (value && bestValue && value === bestValue) return 'text-green-700 bg-green-50 border-green-200';
     if (value === 'No') return 'text-red-700 bg-red-50 border-red-200';
     return 'text-gray-700 bg-gray-50 border-gray-200';
+  };
+
+  const FeatureTooltip = ({ feature, children }: { feature: string; children: React.ReactNode }) => {
+    const featureInfo = featureDefinitions[feature as keyof typeof featureDefinitions];
+    const FeatureIcon = featureInfo?.icon || Info;
+    
+    return (
+      <div className="relative group">
+        {children}
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 w-64">
+          <div className="flex items-start space-x-2">
+            <FeatureIcon size={14} className="flex-shrink-0 mt-0.5" />
+            <div>
+              <p className="font-medium mb-1">{feature}</p>
+              <p className="text-gray-300 mb-1">{featureInfo?.description}</p>
+              <p className="text-orange-300 font-medium">{featureInfo?.tip}</p>
+            </div>
+          </div>
+          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+        </div>
+      </div>
+    );
+  };
+
+  const FeatureExplanation = ({ feature }: { feature: string }) => {
+    const featureInfo = featureDefinitions[feature as keyof typeof featureDefinitions];
+    const FeatureIcon = featureInfo?.icon || Info;
+    const isActive = activeTooltip === feature;
+    
+    return (
+      <div className="relative">
+        <button
+          onClick={() => setActiveTooltip(isActive ? null : feature)}
+          className="ml-2 w-5 h-5 bg-orange-100 hover:bg-orange-200 rounded-full flex items-center justify-center transition-colors"
+        >
+          <HelpCircle size={12} className="text-orange-600" />
+        </button>
+        
+        <AnimatePresence>
+          {isActive && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -10 }}
+              className="absolute top-8 left-0 z-20 bg-white border border-gray-200 rounded-xl p-4 shadow-lg w-80"
+            >
+              <div className="flex items-start space-x-3">
+                <div className="w-8 h-8 bg-orange-50 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <FeatureIcon size={16} className="text-orange-600" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900 mb-2">{feature}</h4>
+                  <p className="text-sm text-gray-600 mb-3">{featureInfo?.description}</p>
+                  <div className="bg-orange-50 rounded-lg p-2">
+                    <p className="text-xs text-orange-700 font-medium">
+                      💡 {featureInfo?.tip}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={() => setActiveTooltip(null)}
+                className="absolute top-2 right-2 w-6 h-6 bg-gray-100 hover:bg-gray-200 rounded-full flex items-center justify-center"
+              >
+                <X size={12} className="text-gray-500" />
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    );
   };
 
   const getTotalScore = (policy: Policy) => {
@@ -325,9 +450,42 @@ export function ComparisonScreen({ }: ComparisonScreenProps) {
 
         {/* Detailed Comparison */}
         <div className="mb-8">
-          <div className="flex items-center space-x-2 mb-6">
-            <Filter className="text-gray-600" size={20} />
-            <h2 className="font-bold text-gray-900">Detailed Comparison</h2>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-2">
+              <Filter className="text-gray-600" size={20} />
+              <h2 className="font-bold text-gray-900">Detailed Comparison</h2>
+            </div>
+          </div>
+          
+          {/* Help Banner */}
+          <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-4 mb-6 border border-orange-200">
+            <div className="flex items-start space-x-3">
+              <div className="w-8 h-8 bg-orange-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                <Info size={16} className="text-orange-600" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-orange-900 mb-1">Understanding Insurance Terms</h3>
+                <p className="text-sm text-orange-800 mb-2">
+                  New to health insurance? No worries! Hover over the values or click the 
+                  <HelpCircle size={14} className="inline mx-1 text-orange-600" /> 
+                  icons to understand what each feature means and why it matters for your health coverage.
+                </p>
+                <div className="flex items-center space-x-4 text-xs text-orange-700">
+                  <div className="flex items-center space-x-1">
+                    <div className="w-3 h-3 bg-green-200 border border-green-300 rounded"></div>
+                    <span>Best Value</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <div className="w-3 h-3 bg-gray-200 border border-gray-300 rounded"></div>
+                    <span>Available</span>
+                  </div>
+                  <div className="flex items-center space-x-1">
+                    <div className="w-3 h-3 bg-red-200 border border-red-300 rounded"></div>
+                    <span>Not Available</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           
           {/* Desktop Comparison Table */}
@@ -336,7 +494,18 @@ export function ComparisonScreen({ }: ComparisonScreenProps) {
               <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="text-left p-4 font-medium text-gray-900 min-w-[200px]">Features</th>
+                    <th className="text-left p-4 font-medium text-gray-900 min-w-[200px]">
+                      <div className="flex items-center">
+                        <span>Features</span>
+                        <div className="ml-2 group relative">
+                          <Info size={16} className="text-gray-400" />
+                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 w-48">
+                            Click the info icons to learn what each feature means
+                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </th>
                     {selectedPolicies.map(policy => (
                       <th key={policy.id} className="text-center p-4 font-medium text-gray-900 min-w-[150px]">
                         <div className="flex flex-col items-center space-y-1">
@@ -354,16 +523,26 @@ export function ComparisonScreen({ }: ComparisonScreenProps) {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className="border-t border-gray-100"
+                      className="border-t border-gray-100 relative"
                     >
-                      <td className="p-4 font-medium text-gray-900">{feature}</td>
-                      {selectedPolicies.map(policy => (
-                        <td key={policy.id} className="p-4 text-center">
-                          <span className={`px-3 py-2 rounded-lg text-sm font-medium border ${getFeatureColor(policy.features[feature], feature)}`}>
-                            {policy.features[feature]}
-                          </span>
-                        </td>
-                      ))}
+                      <td className="p-4 font-medium text-gray-900">
+                        <div className="flex items-center">
+                          <span>{feature}</span>
+                          <FeatureExplanation feature={feature} />
+                        </div>
+                      </td>
+                      {selectedPolicies.map(policy => {
+                        const val = policy.features[feature];
+                        return (
+                          <td key={policy.id} className="p-4 text-center">
+                            <FeatureTooltip feature={feature}>
+                              <span className={`px-3 py-2 rounded-lg text-sm font-medium border ${getFeatureColor(val, feature)} cursor-help`}>
+                                {val}
+                              </span>
+                            </FeatureTooltip>
+                          </td>
+                        );
+                      })}
                     </motion.tr>
                   ))}
                 </tbody>
@@ -373,30 +552,53 @@ export function ComparisonScreen({ }: ComparisonScreenProps) {
 
           {/* Mobile Comparison Cards */}
           <div className="lg:hidden space-y-4">
-            {compareFeatures.map((feature, index) => (
-              <motion.div
-                key={feature}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="bg-white rounded-xl p-4 border border-gray-100"
-              >
-                <h4 className="font-medium text-gray-900 mb-3">{feature}</h4>
-                <div className="space-y-2">
-                  {selectedPolicies.map(policy => (
-                    <div key={policy.id} className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-lg">{policy.icon}</span>
-                        <span className="text-sm text-gray-600">{policy.name}</span>
+            {compareFeatures.map((feature, index) => {
+              const featureInfo = featureDefinitions[feature as keyof typeof featureDefinitions];
+              const FeatureIcon = featureInfo?.icon || Info;
+              
+              return (
+                <motion.div
+                  key={feature}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="bg-white rounded-xl p-4 border border-gray-100"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 bg-orange-50 rounded-md flex items-center justify-center">
+                        <FeatureIcon size={14} className="text-orange-600" />
                       </div>
-                      <span className={`px-3 py-1 rounded-md text-sm font-medium border ${getFeatureColor(policy.features[feature], feature)}`}>
-                        {policy.features[feature]}
-                      </span>
+                      <h4 className="font-medium text-gray-900">{feature}</h4>
                     </div>
-                  ))}
-                </div>
-              </motion.div>
-            ))}
+                    <FeatureExplanation feature={feature} />
+                  </div>
+                  
+                  {/* Feature Description for Mobile */}
+                  <div className="bg-gray-50 rounded-lg p-3 mb-3">
+                    <p className="text-xs text-gray-600 mb-1">{featureInfo?.description}</p>
+                    <p className="text-xs text-orange-600 font-medium">💡 {featureInfo?.tip}</p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    {selectedPolicies.map(policy => {
+                      const val = policy.features[feature];
+                      return (
+                        <div key={policy.id} className="flex items-center justify-between">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-lg">{policy.icon}</span>
+                            <span className="text-sm text-gray-600">{policy.name}</span>
+                          </div>
+                          <span className={`px-3 py-1 rounded-md text-sm font-medium border ${getFeatureColor(val, feature)}`}>
+                            {val}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
 

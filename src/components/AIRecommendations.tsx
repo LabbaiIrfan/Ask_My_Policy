@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { 
-  Sparkles, 
-  Brain, 
-  Target, 
-  TrendingUp, 
-  Star, 
+import {
+  Sparkles,
+  Brain,
+  Target,
+  TrendingUp,
+  Star,
   Zap,
   CheckCircle,
   AlertCircle,
@@ -19,17 +19,316 @@ import {
   Info
 } from 'lucide-react';
 
-interface AIRecommendationsProps {
-  onOpenMenu: () => void;
-  onToggleSidebar?: () => void;
+interface Recommendation {
+  id: string;
+  title: string;
+  company: string;
+  type: string;
+  match: number;
+  coverage: string;
+  premium: string;
+  savings: string;
+  aiReason: string;
+  benefits: string[];
+  rating: number;
+  icon?: string;
+  priority?: 'high' | 'medium' | 'low';
+  originalPremium?: string;
+  popular?: boolean;
 }
 
-export function AIRecommendations({}: AIRecommendationsProps) {
-  const [selectedTab, setSelectedTab] = useState('personalized');
+interface AIRecommendationsProps {
+  userData?: any;
+}
 
-  const personalizedRecommendations = [
+export function AIRecommendations({ userData }: AIRecommendationsProps) {
+  const [selectedTab, setSelectedTab] = useState('personalized');
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  
+  const getPersonalizedMessage = () => {
+    if (!userData?.profileCompleted) {
+      return {
+        title: "Complete Your Profile for Better Recommendations",
+        message: "Help our AI understand your needs better by completing your profile. This will unlock personalized recommendations tailored specifically for you.",
+        action: "Complete Profile",
+        color: "orange"
+      };
+    }
+    
+    const profileData = userData?.profileData;
+    const age = profileData?.personal?.age;
+    const occupation = profileData?.personal?.occupation;
+    const policyTypes = profileData?.policyPreferences?.desiredPolicyTypes || [];
+    const budget = profileData?.policyPreferences?.premiumBudget;
+    
+    let personalizedText = `Based on your profile`;
+    if (age) personalizedText += ` (age ${age})`;
+    if (occupation) personalizedText += ` as a ${occupation}`;
+    if (policyTypes.length > 0) personalizedText += `, your interest in ${policyTypes.slice(0, 2).join(' and ')}`;
+    if (budget) personalizedText += `, and your ${budget} budget`;
+    personalizedText += `, here are your AI-curated recommendations.`;
+    
+    return {
+      title: `Personalized for ${userData?.fullName || 'You'}`,
+      message: personalizedText,
+      action: "View All Matches",
+      color: "blue"
+    };
+  };
+
+  const personalizedMsg = getPersonalizedMessage();
+
+  const fetchRecommendations = async () => {
+    if (!userData?.profileCompleted) return;
+
+    try {
+      // Simulate API delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      // Generate mock recommendations based on profile data
+      const mockRecommendations = generateMockRecommendations(userData.profileData);
+      setRecommendations(mockRecommendations);
+    } catch (error) {
+      console.error('Failed to fetch recommendations:', error);
+    } finally {
+    }
+  };
+
+  const generateMockRecommendations = (profileData: any) => {
+    const recommendations = [];
+    
+    if (!profileData) {
+      // Return default health recommendations if no profile data
+      return [
+        {
+          id: 'health_basic',
+          title: 'BasicCare Essential',
+          company: 'Care Health Insurance',
+          type: 'Individual Health',
+          match: 75,
+          coverage: '₹2,00,000',
+          premium: '₹8,600/year',
+          savings: '₹1,800/year',
+          aiReason: 'Essential health coverage perfect for getting started.',
+          benefits: ['Basic hospitalization', 'Day care surgery', 'Emergency ambulance', 'Annual health checkup'],
+          rating: 4.3
+        }
+      ];
+    }
+
+    // Individual Health Insurance
+    recommendations.push({
+      id: 'health_individual',
+      title: 'HealthCare Premium Plus',
+      company: 'Star Health Insurance',
+      type: 'Individual Health',
+      match: calculateHealthMatch(profileData),
+      coverage: '₹10,00,000',
+      premium: '₹18,500/year',
+      savings: '₹3,200/year',
+      aiReason: generateIndividualHealthReason(profileData),
+      benefits: ['Cashless hospitals', 'Pre & post hospitalization', 'Maternity cover', 'Critical illness'],
+      rating: 4.8
+    });
+
+    // Family Health Insurance (if dependents)
+    if (profileData.personal?.dependents && parseInt(profileData.personal.dependents) > 0) {
+      recommendations.push({
+        id: 'health_family',
+        title: 'Family Health Shield',
+        company: 'HDFC ERGO Health Insurance',
+        type: 'Family Health',
+        match: calculateFamilyMatch(profileData),
+        coverage: '₹15,00,000',
+        premium: '₹24,000/year',
+        savings: '₹5,100/year',
+        aiReason: generateFamilyHealthReason(profileData),
+        benefits: ['Family floater', 'Maternity benefits', 'OPD coverage', 'Annual health checkup'],
+        rating: 4.9
+      });
+    }
+
+    // Senior Health Insurance (if age > 60)
+    if (profileData.personal?.age && parseInt(profileData.personal.age) > 60) {
+      recommendations.push({
+        id: 'health_senior',
+        title: 'SeniorCare Complete',
+        company: 'National Insurance Company',
+        type: 'Senior Health',
+        match: calculateSeniorMatch(profileData),
+        coverage: '₹3,00,000',
+        premium: '₹28,800/year',
+        savings: '₹4,400/year',
+        aiReason: generateSeniorHealthReason(profileData),
+        benefits: ['Pre-existing disease cover', 'Domiciliary treatment', 'Alternative treatment', 'Health checkups'],
+        rating: 4.7
+      });
+    }
+
+    // Critical Illness (if family history of critical illness)
+    if (profileData.health?.familyMedicalHistory?.includes('Critical Illness') || 
+        profileData.health?.familyMedicalHistory?.includes('Cancer') ||
+        profileData.health?.familyMedicalHistory?.includes('Heart Disease')) {
+      recommendations.push({
+        id: 'health_critical',
+        title: 'Critical Illness Shield',
+        company: 'Max Bupa Health Insurance',
+        type: 'Critical Illness',
+        match: calculateCriticalMatch(profileData),
+        coverage: '₹25,00,000',
+        premium: '₹32,500/year',
+        savings: '₹6,800/year',
+        aiReason: generateCriticalHealthReason(profileData),
+        benefits: ['Critical illness cover', 'Cancer treatment', 'Organ transplant', 'Heart surgery cover'],
+        rating: 4.6
+      });
+    }
+
+    // Maternity Coverage (if planning family)
+    if (profileData.personal?.maritalStatus === 'married' && 
+        profileData.personal?.age && parseInt(profileData.personal.age) < 40) {
+      recommendations.push({
+        id: 'health_maternity',
+        title: 'MaternityPlus Care',
+        company: 'Religare Health Insurance',
+        type: 'Maternity Health',
+        match: calculateMaternityMatch(profileData),
+        coverage: '₹8,00,000',
+        premium: '₹16,900/year',
+        savings: '₹3,500/year',
+        aiReason: generateMaternityHealthReason(profileData),
+        benefits: ['Maternity benefits', 'Newborn baby cover', 'Fertility treatment', 'Vaccination cover'],
+        rating: 4.5
+      });
+    }
+
+    return recommendations.slice(0, 3); // Return top 3 recommendations
+  };
+
+  const calculateHealthMatch = (profileData: any) => {
+    let match = 70;
+    
+    if (profileData.lifestyle?.smokingHabits === 'never') match += 10;
+    if (profileData.personal?.age && parseInt(profileData.personal.age) < 35) match += 10;
+    if (profileData.health?.currentConditions?.length === 0) match += 10;
+    if (profileData.lifestyle?.drinkingHabits === 'never') match += 5;
+    
+    return Math.min(match, 95);
+  };
+
+  const calculateFamilyMatch = (profileData: any) => {
+    let match = 75;
+    
+    if (profileData.personal?.dependents && parseInt(profileData.personal.dependents) > 1) match += 15;
+    if (profileData.personal?.maritalStatus === 'married') match += 10;
+    if (profileData.financial?.annualIncome && !profileData.financial.annualIncome.includes('under')) match += 5;
+    
+    return Math.min(match, 98);
+  };
+
+  const calculateSeniorMatch = (profileData: any) => {
+    let match = 80;
+    
+    if (profileData.personal?.age && parseInt(profileData.personal.age) > 65) match += 10;
+    if (profileData.health?.currentConditions?.length > 0) match += 5;
+    if (profileData.lifestyle?.smokingHabits === 'never') match += 5;
+    
+    return Math.min(match, 92);
+  };
+
+  const calculateCriticalMatch = (profileData: any) => {
+    let match = 70;
+    
+    if (profileData.health?.familyMedicalHistory?.includes('Critical Illness')) match += 15;
+    if (profileData.health?.familyMedicalHistory?.includes('Cancer')) match += 10;
+    if (profileData.health?.familyMedicalHistory?.includes('Heart Disease')) match += 10;
+    if (profileData.personal?.age && parseInt(profileData.personal.age) > 40) match += 5;
+    
+    return Math.min(match, 95);
+  };
+
+  const calculateMaternityMatch = (profileData: any) => {
+    let match = 75;
+    
+    if (profileData.personal?.maritalStatus === 'married') match += 10;
+    if (profileData.personal?.age && parseInt(profileData.personal.age) < 35) match += 10;
+    if (profileData.personal?.dependents === '0') match += 5;
+    
+    return Math.min(match, 93);
+  };
+
+  const generateIndividualHealthReason = (profileData: any) => {
+    const age = profileData.personal?.age;
+    const smoking = profileData.lifestyle?.smokingHabits;
+    const conditions = profileData.health?.currentConditions?.length || 0;
+    
+    let reason = "Perfect fit based on your ";
+    if (age) reason += `age group (${age}), `;
+    if (smoking === 'never') reason += "non-smoking status, ";
+    if (conditions === 0) reason += "excellent health profile, ";
+    reason += "and coverage preferences.";
+    
+    return reason;
+  };
+
+  const generateFamilyHealthReason = (profileData: any) => {
+    const dependents = profileData.personal?.dependents;
+    const maritalStatus = profileData.personal?.maritalStatus;
+    
+    let reason = "Ideal family coverage considering your ";
+    if (dependents && parseInt(dependents) > 0) reason += `${dependents} dependents, `;
+    if (maritalStatus) reason += `${maritalStatus} status, `;
+    reason += "and family health needs.";
+    
+    return reason;
+  };
+
+  const generateSeniorHealthReason = (profileData: any) => {
+    const age = profileData.personal?.age;
+    
+    let reason = "Specially designed for senior citizens ";
+    if (age) reason += `aged ${age}, `;
+    reason += "with comprehensive coverage for age-related health issues.";
+    
+    return reason;
+  };
+
+  const generateCriticalHealthReason = (profileData: any) => {
+    let reason = "Recommended based on your family medical history ";
+    if (profileData.health?.familyMedicalHistory?.includes('Critical Illness')) {
+      reason += "of critical illness ";
+    }
+    reason += "to provide financial protection against serious diseases.";
+    
+    return reason;
+  };
+
+  const generateMaternityHealthReason = (profileData: any) => {
+    const age = profileData.personal?.age;
+    
+    let reason = "Perfect for family planning ";
+    if (age) reason += `at age ${age}, `;
+    reason += "with comprehensive maternity and newborn care benefits.";
+    
+    return reason;
+  };
+
+  useEffect(() => {
+    fetchRecommendations();
+  }, [userData?.profileCompleted]);
+
+  // Use fetched recommendations or fallback to default ones
+  const personalizedRecommendations: Recommendation[] = recommendations.length > 0 ?
+    recommendations.map((rec, index) => ({
+      ...rec,
+      icon: rec.type === 'Health Insurance' ? '🏥' : rec.type === 'Life Insurance' ? '🛡️' : '🚗',
+      priority: index === 0 ? 'high' : 'medium',
+  originalPremium: (rec.premium || '').replace(/\$(\d+)/, (_match: string, p1: string) => `${parseInt(p1) + 50}`),
+      popular: index === 0
+    })) : [
     {
       id: '1',
+      type: 'Health Insurance',
       title: 'HealthGuard Premium',
       company: 'Star Health',
       icon: '🏥',
@@ -46,6 +345,7 @@ export function AIRecommendations({}: AIRecommendationsProps) {
     },
     {
       id: '2',
+      type: 'Life Insurance',
       title: 'SecureLife Family Plan',
       company: 'HDFC ERGO',
       icon: '🛡️',
@@ -62,6 +362,7 @@ export function AIRecommendations({}: AIRecommendationsProps) {
     },
     {
       id: '3',
+      type: 'Auto Insurance',
       title: 'CareSafe Auto',
       company: 'Bajaj Allianz',
       icon: '🚗',
@@ -117,6 +418,8 @@ export function AIRecommendations({}: AIRecommendationsProps) {
     }
   ];
 
+  // priority color helper removed (unused)
+
   const getMatchColor = (match: number) => {
     if (match >= 90) return 'bg-green-50 text-green-700 border-green-200';
     if (match >= 80) return 'bg-blue-50 text-blue-700 border-blue-200';
@@ -139,8 +442,8 @@ export function AIRecommendations({}: AIRecommendationsProps) {
     }
   };
 
-  const totalSavings = personalizedRecommendations.reduce((sum, rec) => 
-    sum + parseInt(rec.savings.replace(/[₹,]/g, '')), 0
+  const totalSavings = personalizedRecommendations.reduce((sum, rec) =>
+    sum + parseInt((rec.savings || '').replace(/[₹,]/g, '')), 0
   );
 
   const avgMatch = Math.round(
@@ -252,20 +555,31 @@ export function AIRecommendations({}: AIRecommendationsProps) {
         {/* Personalized Recommendations */}
         {selectedTab === 'personalized' && (
           <div className="space-y-6">
-            {/* AI Summary Card */}
+            {/* Personalized AI Summary Card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-6 text-white mb-8"
+              className={`bg-gradient-to-r ${
+                personalizedMsg.color === 'orange' 
+                  ? 'from-orange-500 to-orange-600' 
+                  : 'from-purple-600 to-blue-600'
+              } rounded-xl p-6 text-white mb-8`}
             >
-              <div className="flex items-center space-x-3 mb-4">
-                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                  <Target size={24} className="text-white" />
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <Target size={24} className="text-white" />
+                  </div>
+                  <div>
+                    <h2 className="font-bold text-white">{personalizedMsg.title}</h2>
+                    <p className="text-white/80">{personalizedMsg.message}</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="font-bold text-white">Perfect Matches Found</h2>
-                  <p className="text-white/80">AI-powered recommendations just for you</p>
-                </div>
+                {personalizedMsg.color === 'orange' && (
+                  <button className="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg text-white text-sm font-medium transition-colors">
+                    {personalizedMsg.action}
+                  </button>
+                )}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="text-center">
@@ -368,7 +682,7 @@ export function AIRecommendations({}: AIRecommendationsProps) {
                   <div className="mb-4">
                     <h4 className="font-medium text-gray-900 mb-2">Key Benefits</h4>
                     <div className="space-y-1">
-                      {rec.benefits.slice(0, 3).map((benefit, idx) => (
+                      {rec.benefits.slice(0, 3).map((benefit: string, idx: number) => (
                         <div key={idx} className="flex items-center space-x-2">
                           <CheckCircle className="text-green-500" size={14} />
                           <span className="text-sm text-gray-700">{benefit}</span>

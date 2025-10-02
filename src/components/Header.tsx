@@ -6,13 +6,16 @@ import {
   User, 
   ChevronDown,
   Menu,
-  Home
+  Home,
+  LogIn
 } from 'lucide-react';
 import { Input } from './ui/input';
 
 interface ProfessionalHeaderProps {
   userName: string;
   onOpenMenu: () => void;
+  onLogin?: () => void;
+  isLoggedIn?: boolean;
   title?: string;
   breadcrumbs?: Array<{ label: string; href?: string }>;
 }
@@ -20,6 +23,8 @@ interface ProfessionalHeaderProps {
 export function ProfessionalHeader({ 
   userName, 
   onOpenMenu,
+  onLogin,
+  isLoggedIn = false,
   title = "Dashboard",
   breadcrumbs = []
 }: ProfessionalHeaderProps) {
@@ -78,37 +83,47 @@ export function ProfessionalHeader({
           <Settings size={20} className="text-gray-600 group-hover:text-gray-900" />
         </button>
 
-        <div className="relative group">
-          <button className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
-            <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-sm font-medium">
-                {userName.charAt(0).toUpperCase()}
-              </span>
-            </div>
-            <div className="hidden md:block text-left">
-              <div className="text-sm font-medium text-gray-900">{userName}</div>
-              <div className="text-xs text-gray-500">Administrator</div>
-            </div>
-            <ChevronDown size={16} className="text-gray-400 group-hover:text-gray-600" />
-          </button>
+        {isLoggedIn ? (
+          <div className="relative group">
+            <button className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+              <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-orange-600 rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-medium">
+                  {userName.charAt(0).toUpperCase()}
+                </span>
+              </div>
+              <div className="hidden md:block text-left">
+                <div className="text-sm font-medium text-gray-900">{userName}</div>
+                <div className="text-xs text-gray-500">Administrator</div>
+              </div>
+              <ChevronDown size={16} className="text-gray-400 group-hover:text-gray-600" />
+            </button>
 
-          <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-            <div className="py-2">
-              <a href="#" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                <User size={16} className="mr-3 text-gray-400" />
-                Profile Settings
-              </a>
-              <a href="#" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                <Settings size={16} className="mr-3 text-gray-400" />
-                Account Settings
-              </a>
-              <hr className="my-2 border-gray-100" />
-              <a href="#" className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50">
-                Sign Out
-              </a>
+            <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+              <div className="py-2">
+                <a href="#" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                  <User size={16} className="mr-3 text-gray-400" />
+                  Profile Settings
+                </a>
+                <a href="#" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                  <Settings size={16} className="mr-3 text-gray-400" />
+                  Account Settings
+                </a>
+                <hr className="my-2 border-gray-100" />
+                <a href="#" className="flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                  Sign Out
+                </a>
+              </div>
             </div>
           </div>
-        </div>
+        ) : (
+          <button 
+            onClick={onLogin}
+            className="flex items-center space-x-2 bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors"
+          >
+            <LogIn size={18} />
+            <span>Sign In</span>
+          </button>
+        )}
       </div>
     </header>
   );

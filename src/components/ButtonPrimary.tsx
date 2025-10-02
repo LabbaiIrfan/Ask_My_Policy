@@ -5,6 +5,7 @@ interface ButtonPrimaryProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   children: React.ReactNode;
   fullWidth?: boolean;
   size?: 'sm' | 'md' | 'lg';
+  variant?: 'primary' | 'outline' | 'ghost';
 }
 
 export const ButtonPrimary = forwardRef<HTMLButtonElement, ButtonPrimaryProps>(

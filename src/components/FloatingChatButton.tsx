@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, Mic, MicOff, Bot, Sparkles } from 'lucide-react';
 
 interface ChatMessage {
@@ -23,7 +23,7 @@ export function FloatingChatButton() {
   const [isListening, setIsListening] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputText.trim()) return;
 
     const userMessage: ChatMessage = {
@@ -33,29 +33,48 @@ export function FloatingChatButton() {
       timestamp: new Date()
     };
 
+    // Add user message and set typing indicator
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputText;
     setInputText('');
     setIsTyping(true);
 
-    setTimeout(() => {
-      const responses = [
-        'I understand you\'re looking for insurance information. Let me analyze your needs and recommend the best policies for you. 📊',
-        'Great question! Based on your profile, I can suggest several premium insurance options that offer excellent coverage and value. 💫',
-        'I\'m analyzing thousands of insurance policies to find the perfect match for you. Here are my top recommendations... ✨',
-        'Let me help you compare different insurance plans. I\'ll highlight the key benefits and savings opportunities for you. 🎯'
-      ];
-      
-      const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+    try {
+      // API Call to your backend
+      const response = await fetch('https://askmypolicybackend.onrender.com/ask', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ query: currentInput }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
       
       const botMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
-        text: randomResponse,
+        text: data.answer || "I'm sorry, I couldn't process that.",
         isBot: true,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, botMessage]);
+
+    } catch (error) {
+      console.error("API Call Error:", error);
+      const errorMessage: ChatMessage = {
+        id: (Date.now() + 1).toString(),
+        text: "There was an error connecting to the server. Please try again.",
+        isBot: true,
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   const toggleVoice = () => {
@@ -237,7 +256,7 @@ export function FloatingChatButton() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={handleSendMessage}
-                        disabled={!inputText.trim()}
+                        disabled={!inputText.trim() || isTyping}
                         className="w-14 h-14 gradient-orange rounded-2xl flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl disabled:hover:shadow-lg group relative overflow-hidden"
                       >
                         <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-orange-600 rounded-2xl blur opacity-0 group-hover:opacity-30 transition-opacity" />
@@ -265,3 +284,4 @@ export function FloatingChatButton() {
     </>
   );
 }
+

@@ -47,17 +47,17 @@ export function ProfessionalSidebar({
   
   const guestMenuItems = [
     { 
-      icon: Store, 
-      label: 'Browse Plans', 
-      screen: 'catalog',
-      description: 'Explore health insurance options',
-      available: true
-    },
-    { 
       icon: Search, 
       label: 'Search & Filter', 
       screen: 'explore',
       description: 'Find plans that match your needs',
+      available: true
+    },
+    { 
+      icon: Store, 
+      label: 'Browse Plans', 
+      screen: 'catalog',
+      description: 'Explore health insurance options',
       available: true
     },
     { 

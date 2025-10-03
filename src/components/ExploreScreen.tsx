@@ -235,9 +235,6 @@ export function ExploreScreen({ onNavigateToDetail }: ExploreScreenProps) {
   const categories = [
     { id: 'Individual', name: 'Individual Health', icon: '👤', description: 'Coverage for yourself' },
     { id: 'Family', name: 'Family Health', icon: '👨‍👩‍👧‍👦', description: 'Coverage for your family' },
-    { id: 'Senior', name: 'Senior Citizen', icon: '👴', description: 'Specialized for seniors' },
-    { id: 'Critical', name: 'Critical Illness', icon: '❤️‍🩹', description: 'Critical disease coverage' },
-    { id: 'Maternity', name: 'Maternity', icon: '🤱', description: 'Pregnancy & childbirth' }
   ];
 
   const genders = ['Male', 'Female', 'Other'];

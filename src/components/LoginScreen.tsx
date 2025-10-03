@@ -221,7 +221,7 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
                 <Shield className="w-8 h-8 text-orange-500" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold">InsureAI Pro</h1>
+                <h1 className="text-2xl font-bold">Ask My Policy Pro</h1>
                 <p className="text-orange-100">Smart Insurance Solutions</p>
               </div>
             </div>
@@ -269,8 +269,8 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
               </h2>
               <p className="text-gray-500 mt-2">
                 {isSignUp 
-                  ? 'Join InsureAI Pro for smarter insurance decisions'
-                  : 'Sign in to your InsureAI Pro account'
+                  ? 'Join Ask My Policy Pro for smarter insurance decisions'
+                  : 'Sign in to your Ask My Policy Pro account'
                 }
               </p>
             </div>

@@ -12,8 +12,10 @@ import { ProfileScreen } from './components/ProfileScreen';
 import { ProfileSetup } from './components/ProfileSetup';
 import { FloatingChatButton } from './components/FloatingChatButton';
 import { GlossaryScreen } from './components/GlossaryScreen';
+import { CompanyAnalysis } from './components/CompanyAnalysis';
+import { PolicyDetailScreen } from './components/PolicyDetailScreen';
 
-type AppState = 'splash' | 'login' | 'profile-setup' | 'catalog' | 'explore' | 'policies' | 'compare' | 'claims' | 'profile' | 'glossary';
+type AppState = 'splash' | 'login' | 'profile-setup' | 'catalog' | 'explore' | 'policies' | 'compare' | 'claims' | 'profile' | 'glossary' | 'analysis' | 'policy-detail';
 
 interface UserData {
   id?: string;
@@ -32,6 +34,7 @@ interface UserData {
 
 export default function App() {
   const [appState, setAppState] = useState<AppState>('splash');
+  const [previousState, setPreviousState] = useState<AppState>('catalog');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -61,7 +64,6 @@ export default function App() {
     setUserData(normalized);
     setIsLoggedIn(true);
 
-    // If this is a new user or profile not completed, force profile setup
     if ((loginUserData as any).isNewUser || !normalized.profileCompleted) {
       setAppState('profile-setup');
     } else {
@@ -89,14 +91,13 @@ export default function App() {
   const checkSession = async () => {
     try {
       const session = JSON.parse(localStorage.getItem('mock_session') || '{}');
-      
+
       if (!session.access_token || !session.user) {
-        setAppState('catalog'); // Go to main app interface
+        setAppState('catalog');
         setIsLoggedIn(false);
         return;
       }
 
-      // Check if session is expired
       if (session.expires_at && Date.now() > session.expires_at) {
         localStorage.removeItem('mock_session');
         setAppState('catalog');
@@ -104,10 +105,9 @@ export default function App() {
         return;
       }
 
-      // Get updated user data from mock database
       const existingUsers = JSON.parse(localStorage.getItem('mock_users') || '[]');
       const currentUser = existingUsers.find((user: any) => user.id === session.user.id);
-      
+
       if (currentUser) {
         const restoredUserData: UserData = {
           id: currentUser.id,
@@ -126,7 +126,7 @@ export default function App() {
 
         setUserData(restoredUserData);
         setIsLoggedIn(true);
-        
+
         if (!restoredUserData.profileCompleted) {
           setAppState('profile-setup');
         } else {
@@ -156,17 +156,22 @@ export default function App() {
   }, [appState]);
 
   const handleNavigate = (screen: string) => {
+    setPreviousState(appState);
     setAppState(screen as AppState);
     setIsMobileSidebarOpen(false);
   };
 
+  const navigateToDetail = () => {
+    setPreviousState(appState);
+    setAppState('policy-detail');
+  };
+
   const handleLogout = async () => {
     try {
-      // Clear mock session
       localStorage.removeItem('mock_session');
-      
+
       setIsLoggedIn(false);
-      setAppState('catalog'); // Stay in main app interface
+      setAppState('catalog');
       setIsMobileSidebarOpen(false);
       setUserData({
         fullName: '',
@@ -195,23 +200,27 @@ export default function App() {
 
   const renderCurrentScreen = () => {
     const openMobileMenu = () => setIsMobileSidebarOpen(true);
-    
+
     switch (appState) {
       case 'explore':
-        return <ExploreScreen />;
+        return <ExploreScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} userData={isLoggedIn ? userData : null} onNavigateToDetail={navigateToDetail} />;
       case 'policies':
-        return isLoggedIn ? <MyPolicies onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} /> : <PolicyCatalog onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} />;
+        return isLoggedIn ? <MyPolicies onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} /> : <PolicyCatalog onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} onNavigateToDetail={navigateToDetail} />;
       case 'compare':
         return <ComparisonScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} />;
       case 'claims':
         return <ClaimsScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} />;
       case 'profile':
-        return isLoggedIn ? <ProfileScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} userName={userData.fullName} /> : <PolicyCatalog onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} />;
+        return isLoggedIn ? <ProfileScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} userName={userData.fullName} /> : <PolicyCatalog onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} onNavigateToDetail={navigateToDetail} />;
       case 'glossary':
         return <GlossaryScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} />;
+      case 'analysis':
+        return <CompanyAnalysis onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} />;
+      case 'policy-detail':
+        return <PolicyDetailScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} onBack={() => setAppState(previousState)} />;
       case 'catalog':
       default:
-        return <PolicyCatalog onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} />;
+        return <PolicyCatalog onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} onNavigateToDetail={navigateToDetail} />;
     }
   };
 
@@ -224,7 +233,7 @@ export default function App() {
 
       {/* Login Screen */}
       {appState === 'login' && (
-        <LoginScreen 
+        <LoginScreen
           onLogin={handleLogin}
           onForgotPassword={handleForgotPassword}
         />
@@ -232,7 +241,7 @@ export default function App() {
 
       {/* Profile Setup */}
       {appState === 'profile-setup' && (
-        <ProfileSetup 
+        <ProfileSetup
           userData={userData}
           onComplete={handleProfileSetupComplete}
           onSkip={handleProfileSetupSkip}
@@ -275,6 +284,8 @@ export default function App() {
                 appState === 'compare' ? 'Plan Comparison' :
                 appState === 'profile' ? 'Health Profile' :
                 appState === 'glossary' ? 'Insurance Glossary' :
+                appState === 'analysis' ? 'Company Analysis' :
+                appState === 'policy-detail' ? 'Policy Details' :
                 'Health Insurance Plans'
               }
               breadcrumbs={[

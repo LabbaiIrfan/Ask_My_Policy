@@ -13,11 +13,17 @@ import {
   ArrowRight,
   ArrowLeft,
   CheckCircle,
-  // Clock removed (unused)
   X
 } from 'lucide-react';
 import { Input } from './ui/input';
-import { ButtonPrimary } from './ButtonPrimary';
+import { Button } from './ui/button';
+
+interface ExploreScreenProps {
+  onOpenMenu: () => void;
+  onToggleSidebar?: () => void;
+  userData?: any;
+  onNavigateToDetail?: () => void;
+}
 
 interface FilterData {
   category: string;
@@ -29,7 +35,7 @@ interface FilterData {
   requiredCoverage: string;
 }
 
-export function ExploreScreen() {
+export function ExploreScreen({ onNavigateToDetail }: ExploreScreenProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilterWizard, setShowFilterWizard] = useState(false);
   const [filterStep, setFilterStep] = useState(0);
@@ -644,9 +650,13 @@ export function ExploreScreen() {
       {/* Savings & Action */}
       <div className="flex items-center justify-between">
         <span className="text-sm text-green-600 font-medium">{policy.savings}</span>
-        <ButtonPrimary  size="sm" className="bg-primary hover:bg-primary/90">
+        <Button 
+          size="sm" 
+          className="bg-primary hover:bg-primary/90"
+          onClick={onNavigateToDetail}
+        >
           View Details
-        </ButtonPrimary>
+        </Button>
       </div>
     </motion.div>
   );
@@ -685,9 +695,9 @@ export function ExploreScreen() {
                         onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                       />
                     </div>
-                    <ButtonPrimary onClick={handleSearch} className="bg-primary hover:bg-primary/90">
+                    <Button onClick={handleSearch} className="bg-primary hover:bg-primary/90">
                       <Search className="w-4 h-4" />
-                    </ButtonPrimary>
+                    </Button>
                   </div>
                 </div>
 
@@ -697,13 +707,13 @@ export function ExploreScreen() {
                     <Filter className="w-5 h-5" />
                     <span>Smart Filter</span>
                   </h3>
-                  <ButtonPrimary
+                  <Button
                     onClick={() => setShowFilterWizard(true)}
                     className="w-full bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 h-11"
                   >
                     <Filter className="w-4 h-4 mr-2" />
                     Find My Perfect Plan
-                  </ButtonPrimary>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -736,12 +746,12 @@ export function ExploreScreen() {
                     <h2 className="text-xl font-semibold text-gray-900">Find Your Perfect Plan</h2>
                     <p className="text-sm text-gray-600">Step {filterStep + 1} of {filterSteps.length}</p>
                   </div>
-                  <ButtonPrimary
+                  <button
                     onClick={() => setShowFilterWizard(false)}
                     className="p-2 hover:bg-gray-100 rounded-lg"
                   >
                     <X className="w-5 h-5" />
-                  </ButtonPrimary>
+                  </button>
                 </div>
 
                 {/* Progress Bar */}
@@ -769,7 +779,7 @@ export function ExploreScreen() {
 
                 {/* Navigation */}
                 <div className="flex justify-between mt-8">
-                  <ButtonPrimary
+                  <Button
                     variant="outline"
                     onClick={prevStep}
                     disabled={filterStep === 0}
@@ -777,14 +787,14 @@ export function ExploreScreen() {
                   >
                     <ArrowLeft className="w-4 h-4" />
                     <span>Previous</span>
-                  </ButtonPrimary>
-                  <ButtonPrimary
+                  </Button>
+                  <Button
                     onClick={nextStep}
                     className="bg-primary hover:bg-primary/90 flex items-center space-x-2"
                   >
                     <span>{filterStep === filterSteps.length - 1 ? 'Get Recommendations' : 'Next'}</span>
                     <ArrowRight className="w-4 h-4" />
-                  </ButtonPrimary>
+                  </Button>
                 </div>
               </motion.div>
             </motion.div>
@@ -804,7 +814,7 @@ export function ExploreScreen() {
                 <h2 className="text-xl font-semibold text-gray-900">Your Recommendations</h2>
                 <p className="text-gray-600">Based on your preferences and requirements</p>
               </div>
-              <ButtonPrimary
+              <Button
                 variant="outline"
                 onClick={() => {
                   setShowResults(false);
@@ -812,7 +822,7 @@ export function ExploreScreen() {
                 }}
               >
                 Back to Explore
-              </ButtonPrimary>
+              </Button>
             </div>
 
             {/* Recommended Policies */}

@@ -13,7 +13,8 @@ import {
   Heart,
   Sparkles,
   ChevronRight,
-  BookOpen
+  BookOpen,
+  BarChart3
 } from 'lucide-react';
 
 interface ProfessionalSidebarProps {
@@ -79,6 +80,13 @@ export function ProfessionalSidebar({
       screen: 'glossary',
       description: 'Understand insurance terminology',
       available: true
+    },
+    { 
+      icon: BarChart3, 
+      label: 'Company Analysis', 
+      screen: 'analysis',
+      description: 'Compare company metrics',
+      available: true
     }
   ];
 
@@ -130,6 +138,13 @@ export function ProfessionalSidebar({
       label: 'Insurance Terms', 
       screen: 'glossary',
       description: 'Understand insurance terminology',
+      available: true
+    },
+    { 
+      icon: BarChart3, 
+      label: 'Company Analysis', 
+      screen: 'analysis',
+      description: 'Compare company metrics',
       available: true
     }
   ];
@@ -330,7 +345,7 @@ export function ProfessionalSidebar({
                     exit={{ opacity: 0, height: 0 }}
                     className="text-center text-xs text-sidebar-foreground/60"
                   >
-                    <p>© 2025 Ask My Policy</p>
+                    <p>© 2024 Ask My Policy</p>
                     <p>Secure • Trusted • AI-Powered</p>
                   </motion.div>
                 )}

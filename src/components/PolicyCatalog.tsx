@@ -8,15 +8,16 @@ import {
   Clock,
   DollarSign,
   TrendingUp,
-  ArrowRight
+  ArrowRight,
 } from 'lucide-react';
 
 interface PolicyCatalogProps {
   onOpenMenu: () => void;
   onToggleSidebar?: () => void;
+  onNavigateToDetail?: () => void;
 }
 
-export function PolicyCatalog({}: PolicyCatalogProps) {
+export function PolicyCatalog({ onNavigateToDetail }: PolicyCatalogProps) {
   const [activeCategory, setActiveCategory] = useState('All');
 
   const categories = [
@@ -327,7 +328,10 @@ export function PolicyCatalog({}: PolicyCatalogProps) {
                   <ArrowRight size={16} />
                 </button>
                 <div className="grid grid-cols-2 gap-3">
-                  <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
+                  <button 
+                    onClick={onNavigateToDetail}
+                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                  >
                     Details
                   </button>
                   <button className="px-4 py-2 border border-primary text-primary rounded-lg font-medium hover:bg-primary/5 transition-colors">

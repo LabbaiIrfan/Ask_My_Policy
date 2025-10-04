@@ -1,8 +1,10 @@
+// src/components/LoginScreen.tsx
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Shield, Eye, EyeOff, Mail, Lock, User, ArrowRight, CheckCircle } from 'lucide-react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
+import { useAuth } from '../utils/supabase/auth';
 
 interface LoginScreenProps {
   onLogin: (userData: any) => void;
@@ -10,6 +12,8 @@ interface LoginScreenProps {
 }
 
 export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
+  const { signUpWithEmail, signInWithEmail } = useAuth();
+
   const [isSignUp, setIsSignUp] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -32,19 +36,16 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
 
   const validateForm = () => {
     const newErrors: any = {};
-    
     if (!formData.email) {
       newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email';
     }
-    
     if (!formData.password) {
       newErrors.password = 'Password is required';
     } else if (formData.password.length < 6) {
       newErrors.password = 'Password must be at least 6 characters';
     }
-    
     if (isSignUp) {
       if (!formData.fullName) {
         newErrors.fullName = 'Full name is required';
@@ -56,122 +57,56 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
         newErrors.agreeToTerms = 'Please agree to terms and conditions';
       }
     }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!validateForm()) return;
-    
     setIsLoading(true);
-    
-    // Mock authentication - simulate API call delay
-    setTimeout(() => {
-      try {
-        // Check for existing user in localStorage (mock database)
-        const existingUsers = JSON.parse(localStorage.getItem('mock_users') || '[]');
-        
-        if (isSignUp) {
-          // Check if user already exists
-          const userExists = existingUsers.find((user: any) => user.email === formData.email);
-          
-          if (userExists) {
-            setErrors({ submit: 'User already exists with this email' });
-            setIsLoading(false);
-            return;
-          }
-          
-          // Create new user
-          const newUser = {
-            id: `user_${Date.now()}`,
-            email: formData.email,
-            fullName: formData.fullName,
-            password: formData.password, // In real app, this would be hashed
-            profileCompleted: false,
-            profileData: {
-              personal: {},
-              financial: {},
-              lifestyle: {},
-              health: {},
-              policyPreferences: {}
-            },
-            createdAt: new Date().toISOString()
-          };
-          
-          // Save to mock database
-          existingUsers.push(newUser);
-          localStorage.setItem('mock_users', JSON.stringify(existingUsers));
-          
-          // Create mock session
-          const session = {
-            access_token: `token_${newUser.id}`,
-            user: newUser,
-            expires_at: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
-          };
-          localStorage.setItem('mock_session', JSON.stringify(session));
-          
-          const userData = {
-            id: newUser.id,
-            email: newUser.email,
-            fullName: newUser.fullName,
-            isNewUser: true,
-            profileCompleted: false,
-            profileData: null
-          };
-          
-          onLogin(userData);
-        } else {
-          // Sign in existing user
-          const user = existingUsers.find((u: any) => 
-            u.email === formData.email && u.password === formData.password
-          );
-          
-          if (!user) {
-            setErrors({ submit: 'Invalid email or password' });
-            setIsLoading(false);
-            return;
-          }
-          
-          // Create mock session
-          const session = {
-            access_token: `token_${user.id}`,
-            user: user,
-            expires_at: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
-          };
-          localStorage.setItem('mock_session', JSON.stringify(session));
-          
-          const userData = {
-            id: user.id,
-            email: user.email,
-            fullName: user.fullName,
-            isNewUser: false,
-            profileCompleted: user.profileCompleted || false,
-            profileData: user.profileData || null
-          };
-          
-          onLogin(userData);
-        }
-        
-        setIsLoading(false);
-      } catch (error: any) {
-        console.error('Authentication error:', error);
-        setErrors({ submit: 'Authentication failed. Please try again.' });
-        setIsLoading(false);
+    setErrors({});
+    try {
+      if (isSignUp) {
+        await signUpWithEmail({
+          email: formData.email,
+          password: formData.password,
+          fullName: formData.fullName
+        });
+
+        onLogin({
+          id: `pending_${Date.now()}`,
+          email: formData.email,
+          fullName: formData.fullName,
+          isNewUser: true,
+          profileCompleted: false,
+          profileData: null
+        });
+      } else {
+        await signInWithEmail(formData.email, formData.password);
+
+        onLogin({
+          id: formData.email,
+          email: formData.email,
+          fullName: '',
+          isNewUser: false,
+          profileCompleted: false,
+          profileData: null
+        });
       }
-    }, 1500); // Simulate network delay
+    } catch (err: any) {
+      setErrors({ submit: err?.message || 'Authentication failed. Please try again.' });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleDemo = () => {
     setIsLoading(true);
-    // create a quick demo session and call onLogin
     const demoUser = {
       id: `demo_user_${isSignUp ? 'new' : 'existing'}`,
       email: isSignUp ? 'demo-new@askmypolicy.local' : 'demo@askmypolicy.local',
       fullName: isSignUp ? 'Demo New User' : 'Demo User',
-      // If demo is triggered while on Sign Up flow, treat as a new user who needs to complete profile
       isNewUser: !!isSignUp,
       profileCompleted: !!(!isSignUp),
       profileData: null
@@ -180,7 +115,7 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
     const session = {
       access_token: `demo_token_${demoUser.id}`,
       user: demoUser,
-      expires_at: Date.now() + (24 * 60 * 60 * 1000)
+      expires_at: Date.now() + 24 * 60 * 60 * 1000
     };
     try {
       localStorage.setItem('mock_session', JSON.stringify(session));
@@ -188,10 +123,8 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
       // ignore storage errors
     }
 
-    // small delay to show loading state
     setTimeout(() => {
       setIsLoading(false);
-      // Pass demo user to onLogin; App will route to profile setup when profileCompleted is false
       onLogin(demoUser);
     }, 300);
   };
@@ -206,16 +139,12 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-100 flex">
+      {/* Left side (benefits) */}
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-orange-700" />
         <div className="absolute inset-0 bg-black/20" />
-        
         <div className="relative z-10 flex flex-col justify-center p-12 text-white">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <div className="flex items-center space-x-3 mb-8">
               <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center">
                 <Shield className="w-8 h-8 text-orange-500" />
@@ -225,15 +154,12 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
                 <p className="text-orange-100">Smart Insurance Solutions</p>
               </div>
             </div>
-            
             <h2 className="text-4xl font-bold mb-6 leading-tight">
               Your Perfect Insurance Match Awaits
             </h2>
-            
             <p className="text-xl text-orange-100 mb-8 leading-relaxed">
               Join thousands of smart consumers who trust our AI to find the best insurance coverage at unbeatable prices.
             </p>
-            
             <div className="space-y-4">
               {benefits.map((benefit, index) => (
                 <motion.div
@@ -252,6 +178,7 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
         </div>
       </div>
 
+      {/* Right side (form) */}
       <div className="flex-1 flex items-center justify-center p-6">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -268,10 +195,9 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
                 {isSignUp ? 'Create Account' : 'Welcome Back'}
               </h2>
               <p className="text-gray-500 mt-2">
-                {isSignUp 
+                {isSignUp
                   ? 'Join Ask My Policy Pro for smarter insurance decisions'
-                  : 'Sign in to your Ask My Policy Pro account'
-                }
+                  : 'Sign in to your Ask My Policy Pro account'}
               </p>
             </div>
 
@@ -296,9 +222,7 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
                           placeholder="Enter your full name"
                         />
                       </div>
-                      {errors.fullName && (
-                        <p className="text-red-500 text-sm">{errors.fullName}</p>
-                      )}
+                      {errors.fullName && <p className="text-red-500 text-sm">{errors.fullName}</p>}
                     </div>
                   </motion.div>
                 )}
@@ -316,9 +240,7 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
                     placeholder="Enter your email"
                   />
                 </div>
-                {errors.email && (
-                  <p className="text-red-500 text-sm">{errors.email}</p>
-                )}
+                {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
               </div>
 
               <div className="space-y-2">
@@ -340,9 +262,7 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
                     {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                   </button>
                 </div>
-                {errors.password && (
-                  <p className="text-red-500 text-sm">{errors.password}</p>
-                )}
+                {errors.password && <p className="text-red-500 text-sm">{errors.password}</p>}
               </div>
 
               <AnimatePresence>
@@ -372,11 +292,8 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
                           {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                         </button>
                       </div>
-                      {errors.confirmPassword && (
-                        <p className="text-red-500 text-sm">{errors.confirmPassword}</p>
-                      )}
+                      {errors.confirmPassword && <p className="text-red-500 text-sm">{errors.confirmPassword}</p>}
                     </div>
-
                     <div className="flex items-start space-x-2">
                       <input
                         type="checkbox"
@@ -390,9 +307,7 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
                         <span className="text-orange-600 hover:underline cursor-pointer">Privacy Policy</span>
                       </label>
                     </div>
-                    {errors.agreeToTerms && (
-                      <p className="text-red-500 text-sm">{errors.agreeToTerms}</p>
-                    )}
+                    {errors.agreeToTerms && <p className="text-red-500 text-sm">{errors.agreeToTerms}</p>}
                   </motion.div>
                 )}
               </AnimatePresence>

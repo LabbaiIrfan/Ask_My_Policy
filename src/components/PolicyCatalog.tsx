@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { 
   Star,
   Shield,
@@ -17,174 +17,198 @@ interface PolicyCatalogProps {
   onNavigateToDetail?: () => void;
 }
 
+// Data from AskMyPolicy.compare.json
+const jsonData = [
+  {
+    "_id": { "$oid": "68d7076f361ad5e000cebea6" },
+    "policyName": "ReAssure 3.0",
+    "insurer": "Aditya Birla Health Insurance Company Limited",
+    "code": "ABHI",
+    "policyType": "Individual/Floater",
+    "coverage": {
+      "preHospitalization": { "durationDays": 60 },
+      "postHospitalization": { "durationDays": 180 },
+      "sumInsuredRestoration": { "isAvailable": true, "conditions": ["Unlimited reinstatements in a policy year."] }
+    },
+    "addOns_OptionalBenefits": [
+      { "name": "Cancer Hospitalisation Booster", "isAvailable": true },
+      { "name": "Personal Accident Cover", "isAvailable": true },
+      { "name": "Reduction in PED waiting period", "isAvailable": true }
+    ],
+    "waitingPeriods": { "preExistingDiseaseMonths": 36 },
+    "specialCoverages": [
+      { "diseaseName": "Maternity", "isCovered": true }
+    ]
+  },
+  {
+    "_id": { "$oid": "68d70c40361ad5e000cebea7" },
+    "policyName": "Activ One",
+    "insurer": "Aditya Birla Health Insurance Company Limited",
+    "code": "ABHI",
+    "policyType": "Individual/Floater",
+    "coverage": {
+      "preHospitalization": { "durationDays": 90 },
+      "postHospitalization": { "durationDays": 180 },
+      "sumInsuredRestoration": { "isAvailable": true, "conditions": ["Unlimited reinstatements in a policy year (Super Reload)."] }
+    },
+    "addOns_OptionalBenefits": [
+      { "name": "Cancer Booster", "isAvailable": true },
+      { "name": "Personal Accident Cover", "isAvailable": true },
+      { "name": "Critical Illness Cover", "isAvailable": true }
+    ],
+    "waitingPeriods": { "preExistingDiseaseMonths": 48 },
+    "specialCoverages": [
+      { "diseaseName": "Mental Illness Hospitalization", "isCovered": true }
+    ]
+  },
+  {
+    "_id": { "$oid": "68d70407361ad5e000cebea5" },
+    "policyName": "Care Advantage",
+    "insurer": "Care Health Insurance Limited",
+    "code": "CHIL",
+    "policyType": "Individual/Floater",
+    "coverage": {
+      "preHospitalization": { "durationDays": 60 },
+      "postHospitalization": { "durationDays": 180 },
+      "sumInsuredRestoration": { "isAvailable": true, "conditions": ["100% of the Base Sum Insured is reinstated."] }
+    },
+    "addOns_OptionalBenefits": [
+      { "name": "Smart Select", "isAvailable": true },
+      { "name": "Annual Health Check-up", "isAvailable": true },
+      { "name": "No Claim Bonus Super", "isAvailable": true }
+    ],
+    "waitingPeriods": { "preExistingDiseaseMonths": 48 },
+    "specialCoverages": [
+      { "diseaseName": "Maternity", "isCovered": true, "coverageType": "Optional Add-on" }
+    ]
+  },
+  {
+    "_id": { "$oid": "68d71096361ad5e000cebea8" },
+    "policyName": "Aapke Liye-Uttar Pradesh",
+    "insurer": "Bajaj Allianz General Insurance Co. Ltd.",
+    "code": "BAJHL",
+    "policyType": "Individual/Floater",
+    "coverage": {
+      "preHospitalization": { "durationDays": 30 },
+      "postHospitalization": { "durationDays": 60 },
+      "sumInsuredRestoration": { "isAvailable": false }
+    },
+    "addOns_OptionalBenefits": [
+      { "name": "Sum Insured Reinstatement", "isAvailable": true },
+      { "name": "Super Cumulative Bonus", "isAvailable": true },
+      { "name": "Accidental Death Cover", "isAvailable": true }
+    ],
+    "waitingPeriods": { "preExistingDiseaseMonths": 36 },
+    "specialCoverages": [
+      { "diseaseName": "AYUSH Treatment", "isCovered": true }
+    ]
+  },
+  {
+    "_id": { "$oid": "68d711ea361ad5e000cebea9" },
+    "policyName": "Super Star",
+    "insurer": "Star Health and Allied Insurance Company Limited",
+    "code": "SHAHL",
+    "policyType": "Individual/Floater",
+    "coverage": {
+      "preHospitalization": { "durationDays": 90 },
+      "postHospitalization": { "durationDays": 180 },
+      "sumInsuredRestoration": { "isAvailable": true, "conditions": ["Unlimited reinstatements in a policy year."] }
+    },
+    "addOns_OptionalBenefits": [
+      { "name": "Maternity Expenses", "isAvailable": true },
+      { "name": "Personal Accident Cover", "isAvailable": true },
+      { "name": "Quick Shield", "isAvailable": true }
+    ],
+    "waitingPeriods": { "preExistingDiseaseMonths": 36 },
+    "specialCoverages": [
+      { "diseaseName": "Home Care Treatment", "isCovered": true }
+    ]
+  }
+];
+
+
 export function PolicyCatalog({ onNavigateToDetail }: PolicyCatalogProps) {
   const [activeCategory, setActiveCategory] = useState('All');
 
-  const categories = [
-    { id: 'All', name: 'All Plans', icon: Shield, count: 24 },
-    { id: 'Individual', name: 'Individual', icon: Heart, count: 8 },
-    { id: 'Family', name: 'Family', icon: Shield, count: 6 },
-    { id: 'Senior', name: 'Senior Citizen', icon: Heart, count: 4 },
-    { id: 'Critical', name: 'Critical Illness', icon: Shield, count: 3 },
-    { id: 'Maternity', name: 'Maternity', icon: Heart, count: 3 }
-  ];
-
-  const policies = [
-    {
-      id: '1',
-      name: 'HealthCare Premium Plus',
-      company: 'Star Health Insurance',
-      category: 'Individual',
-      rating: 4.8,
-      reviews: 2847,
-      premium: '₹18,500',
-      coverage: '₹10,00,000',
-      features: ['Cashless Hospitals', 'Pre & Post Hospitalization', 'Maternity Cover', 'Critical Illness'],
-      claimRatio: '89%',
-      waitingPeriod: '2 years',
-      tags: ['Bestseller'],
-      savings: 'Save ₹3,200',
-      icon: '🏥',
-      popular: true
-    },
-    {
-      id: '2',
-      name: 'Family Health Shield',
-      company: 'HDFC ERGO Health Insurance',
-      category: 'Family',
-      rating: 4.9,
-      reviews: 1923,
-      premium: '₹24,000',
-      coverage: '₹15,00,000',
-      features: ['Family Floater', 'Maternity Benefits', 'OPD Coverage', 'Annual Health Checkup'],
-      claimRatio: '93%',
-      waitingPeriod: '1 year',
-      tags: ['Top Rated'],
-      savings: 'Save ₹5,100',
-      icon: '👨‍👩‍👧‍👦',
-      popular: true
-    },
-    {
-      id: '3',
-      name: 'SeniorCare Complete',
-      company: 'National Insurance Company',
-      category: 'Senior',
-      rating: 4.7,
-      reviews: 1567,
-      premium: '₹28,800',
-      coverage: '₹3,00,000',
-      features: ['Pre-existing Disease Cover', 'Domiciliary Treatment', 'Alternative Treatment', 'Health Checkups'],
-      claimRatio: '87%',
-      waitingPeriod: '3 years',
-      tags: ['AI Recommended'],
-      savings: 'Save ₹4,400',
-      icon: '👴',
-      popular: false
-    },
-    {
-      id: '4',
-      name: 'Critical Illness Shield',
-      company: 'Max Bupa Health Insurance',
-      category: 'Critical',
-      rating: 4.6,
-      reviews: 892,
-      premium: '₹32,500',
-      coverage: '₹25,00,000',
-      features: ['Critical Illness Cover', 'Cancer Treatment', 'Organ Transplant', 'Heart Surgery Cover'],
-      claimRatio: '94%',
-      waitingPeriod: '90 days',
-      tags: ['Critical Care'],
-      savings: 'Save ₹6,800',
-      icon: '❤️‍🩹',
-      popular: false
-    },
-    {
-      id: '5',
-      name: 'MaternityPlus Care',
-      company: 'Religare Health Insurance',
-      category: 'Maternity',
-      rating: 4.5,
-      reviews: 645,
-      premium: '₹16,900',
-      coverage: '₹8,00,000',
-      features: ['Maternity Benefits', 'Newborn Baby Cover', 'Fertility Treatment', 'Vaccination Cover'],
-      claimRatio: '91%',
-      waitingPeriod: '9 months',
-      tags: ['Maternity'],
-      savings: 'Save ₹3,500',
-      icon: '🤱',
-      popular: false
-    },
-    {
-      id: '6',
-      name: 'BasicCare Essential',
-      company: 'Care Health Insurance',
-      category: 'Individual',
-      rating: 4.3,
-      reviews: 1234,
-      premium: '₹8,600',
-      coverage: '₹2,00,000',
-      features: ['Basic Hospitalization', 'Day Care Surgery', 'Emergency Ambulance', 'Health Checkups'],
-      claimRatio: '88%',
-      waitingPeriod: '1 year',
-      tags: ['Budget Friendly'],
-      savings: 'Save ₹1,800',
-      icon: '🏥',
-      popular: false
-    },
-    {
-      id: '7',
-      name: 'DiabetesCare Specialist',
-      company: 'Aditya Birla Health Insurance',
-      category: 'Individual',
-      rating: 4.6,
-      reviews: 987,
-      premium: '₹22,900',
-      coverage: '₹6,00,000',
-      features: ['Diabetes Management', 'Insulin Coverage', 'Regular Monitoring', 'Specialist Consultations'],
-      claimRatio: '90%',
-      waitingPeriod: '2 years',
-      tags: ['Disease Specific'],
-      savings: 'Save ₹4,200',
-      icon: '💉',
-      popular: false
-    },
-    {
-      id: '8',
-      name: 'WellnessPlus Complete',
-      company: 'Niva Bupa Health Insurance',
-      category: 'Family',
-      rating: 4.8,
-      reviews: 1456,
-      premium: '₹28,900',
-      coverage: '₹15,00,000',
-      features: ['Preventive Care', 'Health Coaching', 'Wellness Programs', 'Telemedicine Access'],
-      claimRatio: '92%',
-      waitingPeriod: '1 year',
-      tags: ['Wellness Focus'],
-      savings: 'Save ₹5,900',
-      icon: '🌟',
-      popular: true
+  const policies = jsonData.map(policy => {
+    // Determine Category
+    let category = 'Family'; // Default for Individual/Floater
+    if (policy.policyType === 'Individual') {
+        category = 'Individual';
     }
+    // Specific categories override the default
+    if (policy.specialCoverages.some(c => c.diseaseName?.toLowerCase().includes('maternity')) || policy.addOns_OptionalBenefits.some(a => a.name.toLowerCase().includes('maternity'))) {
+      category = 'Maternity';
+    } else if (policy.policyName.toLowerCase().includes('critical illness') || policy.addOns_OptionalBenefits.some(a => a.name.toLowerCase().includes('critical illness'))) {
+      category = 'Critical';
+    } else if (policy.policyName.toLowerCase().includes('senior')) {
+      category = 'Senior';
+    }
+
+    // Determine Features
+    const features = [
+      `Pre-hospitalization: ${policy.coverage.preHospitalization.durationDays} days`,
+      `Post-hospitalization: ${policy.coverage.postHospitalization.durationDays} days`,
+      'All Day Care Treatments',
+    ];
+    if (policy.coverage.sumInsuredRestoration.isAvailable) {
+      features.push('Sum Insured Restoration');
+    }
+
+    return {
+      id: policy._id.$oid,
+      name: policy.policyName,
+      company: policy.insurer,
+      category: category,
+      rating: parseFloat((Math.random() * (4.9 - 4.3) + 4.3).toFixed(1)),
+      reviews: Math.floor(Math.random() * 2500) + 500,
+      premium: `₹${(Math.floor(Math.random() * 250) + 80) * 100}`,
+      coverage: `₹${[5, 10, 15, 25, 50, 100][Math.floor(Math.random() * 6)]},00,000`,
+      features: features,
+      claimRatio: `${Math.floor(Math.random() * 10) + 88}%`,
+      waitingPeriod: `${Math.round(policy.waitingPeriods.preExistingDiseaseMonths / 12)} years`,
+      tags: [policy.code, 'Popular Choice'],
+      icon: category === 'Maternity' ? '🤱' : category === 'Critical' ? '❤️‍🩹' : category === 'Senior' ? '👴' : '👨‍👩‍👧‍👦',
+      popular: Math.random() < 0.5,
+      // Raw data for advanced filtering if needed
+      raw: policy,
+    };
+  });
+  
+  const categories = [
+    { id: 'All', name: 'All Plans', icon: Shield, count: policies.length },
+    { id: 'Individual', name: 'Individual', icon: Heart, count: policies.filter(p => p.category === 'Individual').length },
+    { id: 'Family', name: 'Family', icon: Shield, count: policies.filter(p => p.category === 'Family').length },
+    { id: 'Senior', name: 'Senior Citizen', icon: Heart, count: policies.filter(p => JSON.stringify(p.raw).toLowerCase().includes('senior')).length },
+    { id: 'Critical', name: 'Critical Illness', icon: Shield, count: policies.filter(p => JSON.stringify(p.raw).toLowerCase().includes('critical illness')).length },
+    { id: 'Maternity', name: 'Maternity', icon: Heart, count: policies.filter(p => JSON.stringify(p.raw).toLowerCase().includes('maternity')).length }
   ];
 
-  const filteredPolicies = policies.filter(policy => 
-    activeCategory === 'All' || activeCategory === 'All Plans' || policy.category === activeCategory
-  );
+  const filteredPolicies = policies.filter(policy => {
+    if (activeCategory === 'All') return true;
+    if (activeCategory === 'Senior') {
+      return JSON.stringify(policy.raw).toLowerCase().includes('senior');
+    }
+    if (activeCategory === 'Critical') {
+      return JSON.stringify(policy.raw).toLowerCase().includes('critical illness');
+    }
+    if (activeCategory === 'Maternity') {
+      return JSON.stringify(policy.raw).toLowerCase().includes('maternity');
+    }
+    return policy.category === activeCategory;
+  });
 
   const getBadgeColor = (tag: string) => {
-    const colors = {
+    const colors: { [key: string]: string } = {
       'Bestseller': 'bg-green-50 text-green-700 border-green-200',
       'Top Rated': 'bg-blue-50 text-blue-700 border-blue-200',
-      'AI Recommended': 'bg-purple-50 text-purple-700 border-purple-200',
-      'Popular': 'bg-orange-50 text-orange-700 border-orange-200',
-      'Critical Care': 'bg-rose-50 text-rose-700 border-rose-200',
-      'Maternity': 'bg-pink-50 text-pink-700 border-pink-200',
-      'Budget Friendly': 'bg-emerald-50 text-emerald-700 border-emerald-200',
-      'Disease Specific': 'bg-indigo-50 text-indigo-700 border-indigo-200',
-      'Wellness Focus': 'bg-amber-50 text-amber-700 border-amber-200'
+      'Popular Choice': 'bg-purple-50 text-purple-700 border-purple-200',
+      'ABHI': 'bg-rose-50 text-rose-700 border-rose-200',
+      'CHIL': 'bg-pink-50 text-pink-700 border-pink-200',
+      'BAJHL': 'bg-emerald-50 text-emerald-700 border-emerald-200',
+      'SHAHL': 'bg-indigo-50 text-indigo-700 border-indigo-200',
     };
-    return colors[tag as keyof typeof colors] || 'bg-gray-50 text-gray-700 border-gray-200';
+    return colors[tag] || 'bg-gray-50 text-gray-700 border-gray-200';
   };
 
   return (
@@ -253,7 +277,7 @@ export function PolicyCatalog({ onNavigateToDetail }: PolicyCatalogProps) {
                 <div className="flex items-center space-x-1">
                   <Star className="text-yellow-400 fill-current" size={16} />
                   <span className="font-medium text-gray-900">{policy.rating}</span>
-                  <span className="text-sm text-gray-500">({policy.reviews})</span>
+                  <span className="text-sm text-gray-500">({policy.reviews} reviews)</span>
                 </div>
                 <div className="h-1 w-1 bg-gray-300 rounded-full"></div>
                 <span className="text-sm text-gray-600">
@@ -309,15 +333,11 @@ export function PolicyCatalog({ onNavigateToDetail }: PolicyCatalogProps) {
                 </div>
               </div>
 
-              {/* Savings */}
+              {/* Waiting Period */}
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center space-x-1">
-                  <TrendingUp className="text-green-500" size={16} />
-                  <span className="text-sm font-medium text-green-600">{policy.savings}</span>
-                </div>
                 <div className="flex items-center space-x-1 text-xs text-gray-500">
                   <Clock size={12} />
-                  <span>Waiting: {policy.waitingPeriod}</span>
+                  <span>PED Waiting: {policy.waitingPeriod}</span>
                 </div>
               </div>
 

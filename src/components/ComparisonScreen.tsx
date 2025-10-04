@@ -45,7 +45,12 @@ interface ApiPolicyFeatures {
 type ComparisonData = Record<string, ApiPolicyFeatures>;
 
 // --- Main Component ---
-export function ComparisonScreen() {
+interface ComparisonScreenProps {
+  onOpenMenu?: () => void;
+  onToggleSidebar?: () => void;
+}
+
+export function ComparisonScreen(_props: ComparisonScreenProps) {
   // --- State Management ---
   const [allPolicies, setAllPolicies] = useState<PolicyInfo[]>([]);
   const [selectedPolicyNames, setSelectedPolicyNames] = useState<string[]>(['Care Advantage', 'ReAssure 3.0']);

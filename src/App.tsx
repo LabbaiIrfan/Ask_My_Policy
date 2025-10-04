@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { SplashScreen } from './components/SplashScreen';
 import { LoginScreen } from './components/LoginScreen';
-import { ProfessionalHeader } from './components/Header';
-import { ProfessionalSidebar } from './components/SideBar';
+import { ProfessionalHeader } from './components/Header'; // Retained target import
+import { ProfessionalSidebar } from './components/SideBar'; // Retained target import
 import { PolicyCatalog } from './components/PolicyCatalog';
 import { ExploreScreen } from './components/ExploreScreen';
 import { MyPolicies } from './components/MyPolicies';
@@ -14,8 +14,10 @@ import { FloatingChatButton } from './components/FloatingChatButton';
 import { GlossaryScreen } from './components/GlossaryScreen';
 import { CompanyAnalysis } from './components/CompanyAnalysis';
 import { PolicyDetailScreen } from './components/PolicyDetailScreen';
+import { BranchLocatorScreen } from './components/BranchLocatorScreen'; // Added from source
 
-type AppState = 'splash' | 'login' | 'profile-setup' | 'catalog' | 'explore' | 'policies' | 'compare' | 'claims' | 'profile' | 'glossary' | 'analysis' | 'policy-detail';
+// Updated to include 'branch-locator' from the source code
+type AppState = 'splash' | 'login' | 'profile-setup' | 'catalog' | 'explore' | 'policies' | 'compare' | 'claims' | 'profile' | 'glossary' | 'analysis' | 'policy-detail' | 'branch-locator';
 
 interface UserData {
   id?: string;
@@ -218,6 +220,8 @@ export default function App() {
         return <CompanyAnalysis onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} />;
       case 'policy-detail':
         return <PolicyDetailScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} onBack={() => setAppState(previousState)} />;
+      case 'branch-locator': // Added from source
+        return <BranchLocatorScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} />; // Added from source
       case 'catalog':
       default:
         return <PolicyCatalog onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} onNavigateToDetail={navigateToDetail} />;
@@ -256,7 +260,7 @@ export default function App() {
             <ProfessionalSidebar
               isOpen={true}
               isCollapsed={isDesktopSidebarCollapsed}
-              onClose={() => {}}
+              onClose={() => { }}
               onToggle={toggleDesktopSidebar}
               onNavigate={handleNavigate}
               onLogout={handleLogout}
@@ -278,18 +282,19 @@ export default function App() {
               onLogin={() => setAppState('login')}
               title={
                 appState === 'catalog' ? 'Health Insurance Plans' :
-                appState === 'policies' ? (isLoggedIn ? 'My Health Policies' : 'Health Insurance Plans') :
-                appState === 'claims' ? 'Health Claims' :
-                appState === 'explore' ? 'Explore Health Plans' :
-                appState === 'compare' ? 'Plan Comparison' :
-                appState === 'profile' ? 'Health Profile' :
-                appState === 'glossary' ? 'Insurance Glossary' :
-                appState === 'analysis' ? 'Company Analysis' :
-                appState === 'policy-detail' ? 'Policy Details' :
-                'Health Insurance Plans'
+                  appState === 'policies' ? (isLoggedIn ? 'My Health Policies' : 'Health Insurance Plans') :
+                    appState === 'claims' ? 'Health Claims' :
+                      appState === 'explore' ? 'Explore Health Plans' :
+                        appState === 'compare' ? 'Plan Comparison' :
+                          appState === 'profile' ? 'Health Profile' :
+                            appState === 'glossary' ? 'Insurance Glossary' :
+                              appState === 'analysis' ? 'Company Analysis' :
+                                appState === 'policy-detail' ? 'Policy Details' :
+                                  appState === 'branch-locator' ? 'Branch Locator' : // Added from source
+                                    'Health Insurance Plans'
               }
               breadcrumbs={[
-                { label: 'Ask My Policy' }
+                { label: 'Ask My Policy' } // Retained target breadcrumb label
               ]}
             />
 

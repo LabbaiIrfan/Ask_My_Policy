@@ -45,6 +45,7 @@ export function ProfessionalSidebar({ 
   onToggle,
   userName = ''
 }: ProfessionalSidebarProps) {
+<<<<<<< HEAD
   
   const guestMenuItems = [
     { 
@@ -97,6 +98,53 @@ export function ProfessionalSidebar({ 
       available: true // New Item
     }
   ];
+=======
+  
+  const guestMenuItems = [
+    { 
+      icon: Search, 
+      label: 'Search & Filter', 
+      screen: 'explore',
+      description: 'Find plans that match your needs',
+      available: true
+    },
+    { 
+      icon: Store, 
+      label: 'Browse Plans', 
+      screen: 'catalog',
+      description: 'Explore health insurance options',
+      available: true
+    },
+    { 
+      icon: GitCompare, 
+      label: 'Compare Plans', 
+      screen: 'compare',
+      description: 'Side-by-side plan comparison',
+      available: true
+    },
+    { 
+      icon: AlertTriangle, 
+      label: 'Claims Guide', 
+      screen: 'claims',
+      description: 'Learn about the claims process',
+      available: true
+    },
+    { 
+      icon: BookOpen, 
+      label: 'Insurance Terms', 
+      screen: 'glossary',
+      description: 'Understand insurance terminology',
+      available: true
+    },
+    { 
+      icon: BarChart3, 
+      label: 'Company Analysis', 
+      screen: 'analysis',
+      description: 'Compare company metrics',
+      available: true
+    }
+  ];
+>>>>>>> 481233aa8683cd9623f593fed3bfb2dbff9ce8f2
 
   const memberMenuItems = [
     { 

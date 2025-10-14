@@ -1,239 +1,238 @@
-import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  GitCompare, 
   X, 
-  Star,
-  Shield,
   Zap,
-  TrendingUp,
   Plus,
   ArrowRight,
   CheckCircle,
-  Info,
-  Filter,
-  BarChart3,
   HelpCircle,
-  Hospital,
   Calendar,
   Bed,
   Baby,
   Clock,
   Stethoscope,
   Ambulance,
-  UserCheck,
-  Brain,
-  Smile
+  Loader2,
+  ServerCrash,
+  ShieldCheck
 } from 'lucide-react';
-// stray Check token removed
 
-interface ComparisonScreenProps {
-  onOpenMenu: () => void;
-  onToggleSidebar?: () => void;
-}
-
-type FeatureMap = Record<string, string>;
-
-interface Policy {
+// --- Helper Types ---
+interface PolicyInfo {
   id: string;
   name: string;
   company: string;
   icon: string;
-  premium: string;
-  coverage: string;
-  rating: number;
-  popular?: boolean;
-  bestValue?: boolean;
-  features: FeatureMap;
+}
+
+interface ApiPolicyFeatures {
+  preHospitalizationDays: number;
+  postHospitalizationDays: number;
+  sumInsuredRestoration: boolean;
+  waitingPeriodInitialDays: number;
+  waitingPeriodPEDMonths: number;
+  advancedTreatmentsCovered: boolean;
+  discountsAvailable: boolean;
+  maternityCover: boolean;
+  specialCovers: string[];
+  roomRentCover: string;
+  dayCareCover: boolean;
+  ambulanceCover: boolean;
+  optionalBenefits: string[];
+}
+
+type ComparisonData = Record<string, ApiPolicyFeatures>;
+
+// --- Main Component ---
+interface ComparisonScreenProps {
+  onOpenMenu?: () => void;
+  onToggleSidebar?: () => void;
 }
 
 export function ComparisonScreen(_props: ComparisonScreenProps) {
-  const [selectedPolicies, setSelectedPolicies] = useState<Policy[]>([
-    {
-      id: '1',
-      name: 'HealthGuard Premium',
-      company: 'Star Health',
-      icon: '🏥',
-      premium: '₹18,500',
-      coverage: '₹15,00,000',
-      rating: 4.8,
-      popular: true,
-      bestValue: true,
-      features: {
-        'Cashless Hospitals': '8000+',
-        'Pre-Post Hospitalization': '60 days',
-        'Room Rent Limit': '1% of Sum Insured',
-        'Maternity Cover': 'Yes',
-        'Day Care Procedures': '200+',
-        'Annual Health Checkup': 'Free',
-        'Ambulance Cover': '₹5,000',
-        'OPD Cover': 'Optional',
-        'Mental Health': 'Yes',
-        'Dental Treatment': 'Yes'
-      }
-    },
-    {
-      id: '2',
-      name: 'MediSecure Plus',
-      company: 'HDFC ERGO',
-      icon: '🛡️',
-      premium: '₹22,000',
-      coverage: '₹15,00,000',
-      rating: 4.6,
-      popular: false,
-      bestValue: false,
-      features: {
-        'Cashless Hospitals': '10000+',
-        'Pre-Post Hospitalization': '90 days',
-        'Room Rent Limit': 'No Limit',
-        'Maternity Cover': 'Yes',
-        'Day Care Procedures': '150+',
-        'Annual Health Checkup': 'Free',
-        'Ambulance Cover': '₹10,000',
-        'OPD Cover': 'Yes',
-        'Mental Health': 'No',
-        'Dental Treatment': 'No'
-      }
-    },
-    {
-      id: '3',
-      name: 'CareFirst Elite',
-      company: 'ICICI Lombard',
-      icon: '💚',
-      premium: '₹16,800',
-      coverage: '₹15,00,000',
-      rating: 4.7,
-      popular: false,
-      bestValue: false,
-      features: {
-        'Cashless Hospitals': '6500+',
-        'Pre-Post Hospitalization': '30 days',
-        'Room Rent Limit': '2% of Sum Insured',
-        'Maternity Cover': 'Yes',
-        'Day Care Procedures': '180+',
-        'Annual Health Checkup': 'Free',
-        'Ambulance Cover': '₹3,000',
-        'OPD Cover': 'No',
-        'Mental Health': 'Yes',
-        'Dental Treatment': 'Yes'
-      }
-    }
-  ]);
-
+  // --- State Management ---
+  const [allPolicies, setAllPolicies] = useState<PolicyInfo[]>([]);
+  const [selectedPolicyNames, setSelectedPolicyNames] = useState<string[]>(['Care Advantage', 'ReAssure 3.0']);
+  const [comparisonData, setComparisonData] = useState<ComparisonData | null>(null);
+  const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
+  
+  // State for modal selections
+  const [tempSelectedPolicies, setTempSelectedPolicies] = useState<string[]>([]);
 
+
+  // --- Data Fetching ---
+  useEffect(() => {
+    // In a real app, this would be fetched or be part of a larger context
+    const policiesFromFile: PolicyInfo[] = [
+      { id: '1', name: 'ReAssure 3.0', company: 'Aditya Birla', icon: '🍃' },
+      { id: '2', name: 'Activ One', company: 'Aditya Birla', icon: '💪' },
+      { id: '3', name: 'Care Advantage', company: 'Care Health', icon: '💚' },
+      { id: '4', name: 'Aapke Liye-Uttar Pradesh', company: 'Bajaj Allianz', icon: '🛡️' },
+      { id: '5', name: 'Super Star', company: 'Star Health', icon: '⭐' },
+    ];
+    setAllPolicies(policiesFromFile);
+  }, []);
+
+  useEffect(() => {
+    if (selectedPolicyNames.length === 0) {
+      setComparisonData(null);
+      setAiAnalysis(null);
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchComparisonData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await fetch('https://askmypolicybackend.onrender.com/compare', {
+          method: 'POST',
+          headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            policy_names: selectedPolicyNames.map(name => name.toLowerCase()),
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`API error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        setComparisonData(data.policy_comparison);
+        setAiAnalysis(data.ai_analysis);
+
+      } catch (err) {
+        setError('Failed to fetch comparison data. Please try again later.');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchComparisonData();
+  }, [selectedPolicyNames]);
+
+
+  // --- Feature Definitions & Mappings ---
   const featureDefinitions = {
-    'Cashless Hospitals': {
-      description: 'Number of hospitals where you can get treatment without paying upfront. Your insurance company directly settles the bill with the hospital.',
-      icon: Hospital,
-      tip: 'Higher number means more options near you'
-    },
-    'Pre-Post Hospitalization': {
-      description: 'Coverage for medical expenses before admission and after discharge. Includes diagnostic tests, medicines, and follow-up consultations.',
+    'Pre/Post Hospitalization': {
+      description: 'Coverage for medical expenses before admission and after discharge.',
       icon: Calendar,
-      tip: 'Longer period = better coverage for related expenses'
+      tip: 'Longer periods mean better coverage for related expenses.',
+      formatter: (p: ApiPolicyFeatures) => `${p.preHospitalizationDays} / ${p.postHospitalizationDays} days`,
     },
     'Room Rent Limit': {
-      description: 'Maximum amount the insurer will pay for your hospital room per day. Can be a fixed amount or percentage of sum insured.',
+      description: 'The maximum amount your insurer will pay for your hospital room per day.',
       icon: Bed,
-      tip: '"No Limit" means you can choose any room type'
+      tip: '"No Limit" or specific room types offer more flexibility.',
+      formatter: (p: ApiPolicyFeatures) => p.roomRentCover,
+    },
+    'Sum Insured Restoration': {
+        description: 'Benefit that restores your sum insured after it has been exhausted.',
+        icon: Zap,
+        tip: '100% restoration provides a safety net for multiple claims in a year.',
+        formatter: (p: ApiPolicyFeatures) => p.sumInsuredRestoration ? 'Yes' : 'No',
     },
     'Maternity Cover': {
-      description: 'Coverage for pregnancy-related expenses including delivery, pre-natal and post-natal care, and newborn baby expenses.',
+      description: 'Coverage for pregnancy-related expenses.',
       icon: Baby,
-      tip: 'Usually has a waiting period of 9-36 months'
+      tip: 'Crucial for family planning, but usually has a waiting period.',
+      formatter: (p: ApiPolicyFeatures) => p.maternityCover ? 'Yes' : 'No',
     },
     'Day Care Procedures': {
-      description: 'Medical procedures that don\'t require 24-hour hospitalization but are performed in a hospital setting.',
+      description: 'Medical procedures that don\'t require 24-hour hospitalization.',
       icon: Clock,
-      tip: 'More procedures covered = comprehensive protection'
-    },
-    'Annual Health Checkup': {
-      description: 'Yearly preventive health screening to detect diseases early. Usually includes basic tests like blood work, ECG, etc.',
-      icon: Stethoscope,
-      tip: 'Free checkups help maintain your health proactively'
+      tip: 'Comprehensive plans cover all day care procedures.',
+      formatter: (p: ApiPolicyFeatures) => p.dayCareCover ? 'All Covered' : 'Not Covered',
     },
     'Ambulance Cover': {
-      description: 'Coverage for emergency ambulance charges when you need to be transported to the hospital during a medical emergency.',
+      description: 'Coverage for emergency ambulance charges.',
       icon: Ambulance,
-      tip: 'Higher limit covers expensive emergency transport'
+      tip: 'Higher limits are better for emergencies.',
+      formatter: (p: ApiPolicyFeatures) => p.ambulanceCover ? 'Yes' : 'No',
     },
-    'OPD Cover': {
-      description: 'Outpatient Department coverage for doctor consultations, medicines, and diagnostic tests that don\'t require hospitalization.',
-      icon: UserCheck,
-      tip: 'Covers everyday medical expenses outside hospital'
+    'PED Waiting Period': {
+      description: 'The duration you must wait before the policy covers pre-existing diseases.',
+      icon: Stethoscope,
+      tip: 'A shorter waiting period is highly desirable.',
+      formatter: (p: ApiPolicyFeatures) => `${p.waitingPeriodPEDMonths} months`,
     },
-    'Mental Health': {
-      description: 'Coverage for treatment of mental health conditions including counseling, therapy, and psychiatric consultations.',
-      icon: Brain,
-      tip: 'Important for holistic healthcare coverage'
-    },
-    'Dental Treatment': {
-      description: 'Coverage for dental procedures, surgeries, and treatments that may require hospitalization or are medically necessary.',
-      icon: Smile,
-      tip: 'Usually covers accidental dental injuries and surgeries'
-    }
   };
 
-  const compareFeatures: string[] = Object.keys(featureDefinitions);
+  const compareFeatures = Object.keys(featureDefinitions);
 
-  const removePolicy = (policyId: string) => {
-    setSelectedPolicies(prev => prev.filter(p => p.id !== policyId));
+  // --- UI Handlers ---
+  const handleModalOpen = () => {
+    setTempSelectedPolicies(selectedPolicyNames);
+    setIsModalOpen(true);
+  };
+  
+  const handleModalConfirm = () => {
+    setSelectedPolicyNames(tempSelectedPolicies);
+    setIsModalOpen(false);
+  };
+  
+  const handleTempPolicyToggle = (policyName: string) => {
+    setTempSelectedPolicies(prev => 
+      prev.includes(policyName) 
+        ? prev.filter(name => name !== policyName)
+        : [...prev, policyName]
+    );
   };
 
-  const getBestValue = (feature: string): string | null => {
-    const values = selectedPolicies.map(p => p.features[feature] ?? '');
+  
+  // --- Value & Style Logic ---
+  const getBestValue = (feature: string, policies: ComparisonData): string | boolean | null => {
+    const values = Object.values(policies).map(p => {
+        const key = Object.keys(featureDefinitions).find(k => k === feature);
+        return key ? featureDefinitions[key as keyof typeof featureDefinitions].formatter(p) : null;
+    });
 
-    if (feature === 'Cashless Hospitals' || feature === 'Pre-Post Hospitalization') {
-      const nums = values.map(v => parseInt(v.replace(/\D/g, '')) || 0);
-      const max = Math.max(...nums);
-      const idx = nums.indexOf(max);
-      return idx >= 0 ? values[idx] : null;
+    if (feature === 'Pre/Post Hospitalization') {
+        const postHospDays = Object.values(policies).map(p => p.postHospitalizationDays);
+        const maxDays = Math.max(...postHospDays);
+        return Object.values(policies).find(p => p.postHospitalizationDays === maxDays)
+            ? `${policies[Object.keys(policies)[postHospDays.indexOf(maxDays)]].preHospitalizationDays} / ${maxDays} days`
+            : null;
     }
-
-    if (feature === 'Room Rent Limit') {
-      return values.includes('No Limit') ? 'No Limit' : null;
+    if (feature === 'PED Waiting Period') {
+        const pedMonths = Object.values(policies).map(p => p.waitingPeriodPEDMonths);
+        const minMonths = Math.min(...pedMonths);
+        return `${minMonths} months`;
     }
-
-    if (['Maternity Cover', 'Annual Health Checkup', 'OPD Cover', 'Mental Health', 'Dental Treatment'].includes(feature)) {
+    if (['Sum Insured Restoration', 'Maternity Cover'].includes(feature)) {
       return values.includes('Yes') ? 'Yes' : null;
     }
-
+    if (feature === 'Room Rent Limit') {
+        if (values.includes('No Limit')) return 'No Limit';
+        if (values.includes('Any Room (upgradable to suite)')) return 'Any Room (upgradable to suite)';
+        if (values.includes('Single Private Room')) return 'Single Private Room';
+    }
     return null;
   };
 
   const getFeatureColor = (value: string | undefined, feature: string) => {
-    const bestValue = getBestValue(feature);
-    if (value && bestValue && value === bestValue) return 'text-green-700 bg-green-50 border-green-200';
-    if (value === 'No') return 'text-red-700 bg-red-50 border-red-200';
+    if (!value || !comparisonData) return 'text-gray-700 bg-gray-50 border-gray-200';
+
+    const best = getBestValue(feature, comparisonData);
+    if (best && value === best) return 'text-green-700 bg-green-50 border-green-200';
+    if (value === 'No' || value === 'Not Covered') return 'text-red-700 bg-red-50 border-red-200';
     return 'text-gray-700 bg-gray-50 border-gray-200';
   };
 
-  const FeatureTooltip = ({ feature, children }: { feature: string; children: React.ReactNode }) => {
-    const featureInfo = featureDefinitions[feature as keyof typeof featureDefinitions];
-    const FeatureIcon = featureInfo?.icon || Info;
-    
-    return (
-      <div className="relative group">
-        {children}
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 w-64">
-          <div className="flex items-start space-x-2">
-            <FeatureIcon size={14} className="flex-shrink-0 mt-0.5" />
-            <div>
-              <p className="font-medium mb-1">{feature}</p>
-              <p className="text-gray-300 mb-1">{featureInfo?.description}</p>
-              <p className="text-orange-300 font-medium">{featureInfo?.tip}</p>
-            </div>
-          </div>
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-        </div>
-      </div>
-    );
-  };
-
+  // --- Sub-components ---
   const FeatureExplanation = ({ feature }: { feature: string }) => {
     const featureInfo = featureDefinitions[feature as keyof typeof featureDefinitions];
-    const FeatureIcon = featureInfo?.icon || Info;
+    if (!featureInfo) return null;
+    const FeatureIcon = featureInfo.icon;
     const isActive = activeTooltip === feature;
     
     return (
@@ -244,7 +243,6 @@ export function ComparisonScreen(_props: ComparisonScreenProps) {
         >
           <HelpCircle size={12} className="text-orange-600" />
         </button>
-        
         <AnimatePresence>
           {isActive && (
             <motion.div
@@ -259,11 +257,9 @@ export function ComparisonScreen(_props: ComparisonScreenProps) {
                 </div>
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2">{feature}</h4>
-                  <p className="text-sm text-gray-600 mb-3">{featureInfo?.description}</p>
+                  <p className="text-sm text-gray-600 mb-3">{featureInfo.description}</p>
                   <div className="bg-orange-50 rounded-lg p-2">
-                    <p className="text-xs text-orange-700 font-medium">
-                      💡 {featureInfo?.tip}
-                    </p>
+                    <p className="text-xs text-orange-700 font-medium">💡 {featureInfo.tip}</p>
                   </div>
                 </div>
               </div>
@@ -279,385 +275,261 @@ export function ComparisonScreen(_props: ComparisonScreenProps) {
       </div>
     );
   };
+  
+  const PolicySelectionModal = () => (
+    <AnimatePresence>
+        {isModalOpen && (
+            <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 flex items-center justify-center p-4"
+                onClick={() => setIsModalOpen(false)}
+            >
+                <motion.div
+                    initial={{ scale: 0.9, y: 20 }}
+                    animate={{ scale: 1, y: 0 }}
+                    exit={{ scale: 0.9, y: 20 }}
+                    className="bg-white rounded-xl w-full max-w-md flex flex-col"
+                    onClick={e => e.stopPropagation()}
+                >
+                    <div className="p-6 border-b">
+                        <div className="flex items-center justify-between">
+                            <h3 className="font-bold text-lg text-gray-900">Add or Remove Policies</h3>
+                            <button onClick={() => setIsModalOpen(false)} className="p-1 rounded-full hover:bg-gray-100">
+                                <X size={20} className="text-gray-500"/>
+                            </button>
+                        </div>
+                        <p className="text-sm text-gray-500 mt-1">Select the policies you want to compare.</p>
+                    </div>
 
-  const getTotalScore = (policy: Policy) => {
-    let score = 0;
-    compareFeatures.forEach(feature => {
-      const val = policy.features[feature];
-      if (val && val === getBestValue(feature)) {
-        score += 10;
-      } else if (val !== 'No') {
-        score += 5;
-      }
-    });
-    return Math.min(score, 100);
-  };
+                    <div className="p-6 space-y-3 max-h-[60vh] overflow-y-auto">
+                        {allPolicies.map(policy => {
+                            const isChecked = tempSelectedPolicies.includes(policy.name);
+                            return (
+                                <label key={policy.id} className={`flex items-center space-x-4 p-4 rounded-lg cursor-pointer border-2 transition-all ${isChecked ? 'bg-primary/5 border-primary' : 'bg-gray-50 border-transparent hover:bg-gray-100'}`}>
+                                    <input 
+                                        type="checkbox"
+                                        checked={isChecked}
+                                        onChange={() => handleTempPolicyToggle(policy.name)}
+                                        className="sr-only" // Visually hide checkbox, label handles click
+                                    />
+                                    <span className="text-3xl">{policy.icon}</span>
+                                    <div className="flex-1">
+                                        <p className="font-medium text-gray-800">{policy.name}</p>
+                                        <p className="text-sm text-gray-500">{policy.company}</p>
+                                    </div>
+                                    <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${isChecked ? 'bg-primary border-primary' : 'bg-white border-gray-300'}`}>
+                                      {isChecked && <CheckCircle size={16} className="text-white" />}
+                                    </div>
+                                </label>
+                            )
+                        })}
+                    </div>
+                    
+                    <div className="p-6 border-t mt-auto">
+                        <button 
+                            onClick={handleModalConfirm} 
+                            className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-primary/90 transition-colors disabled:bg-gray-300 flex items-center justify-center space-x-2"
+                            disabled={tempSelectedPolicies.length === 0}
+                        >
+                            <ShieldCheck size={18}/>
+                            <span>Confirm Choices ({tempSelectedPolicies.length})</span>
+                        </button>
+                    </div>
+                </motion.div>
+            </motion.div>
+        )}
+    </AnimatePresence>
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white rounded-xl p-6 border border-gray-100">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center">
-                <GitCompare className="text-orange-600" size={24} />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">{selectedPolicies.length}</p>
-                <p className="text-sm text-gray-600">Policies Selected</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-xl p-6 border border-gray-100">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
-                <CheckCircle className="text-green-600" size={24} />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">
-                  ₹{Math.min(...selectedPolicies.map(p => parseInt(p.premium.replace(/[₹,]/g, ''))))/1000}K
-                </p>
-                <p className="text-sm text-gray-600">Lowest Premium</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-xl p-6 border border-gray-100">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
-                <BarChart3 className="text-blue-600" size={24} />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">
-                  {Math.max(...selectedPolicies.map(p => p.rating))}
-                </p>
-                <p className="text-sm text-gray-600">Highest Rating</p>
-              </div>
-            </div>
-          </div>
-          
-          <div className="bg-white rounded-xl p-6 border border-gray-100">
-            <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
-                <TrendingUp className="text-purple-600" size={24} />
-              </div>
-              <div>
-                <p className="text-2xl font-bold text-gray-900">
-                  {Math.max(...selectedPolicies.map(p => getTotalScore(p)))}%
-                </p>
-                <p className="text-sm text-gray-600">Best Score</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Policy Cards */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="font-bold text-gray-900">Selected Policies</h2>
-            <button className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
-              <Plus size={18} />
-              <span>Add Policy</span>
-            </button>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            {selectedPolicies.map((policy, index) => (
-              <motion.div
-                key={policy.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 relative"
-              >
-                {/* Remove Button */}
-                <button
-                  onClick={() => removePolicy(policy.id)}
-                  className="absolute top-4 right-4 w-8 h-8 bg-gray-100 hover:bg-red-100 rounded-full flex items-center justify-center transition-colors group"
-                >
-                  <X size={16} className="text-gray-400 group-hover:text-red-600" />
-                </button>
-
-                {/* Policy Header */}
-                <div className="text-center mb-4">
-                  <div className="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl">
-                    {policy.icon}
-                  </div>
-                  <h3 className="font-bold text-gray-900 mb-1">{policy.name}</h3>
-                  <p className="text-sm text-gray-600 mb-2">{policy.company}</p>
-                  
-                  {/* Badges */}
-                  <div className="flex items-center justify-center space-x-2 mb-3">
-                    {policy.bestValue && (
-                      <span className="bg-green-100 text-green-700 px-2 py-1 rounded-md text-xs font-medium">
-                        Best Value
-                      </span>
-                    )}
-                    {policy.popular && (
-                      <span className="bg-orange-100 text-orange-700 px-2 py-1 rounded-md text-xs font-medium">
-                        Popular
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Rating */}
-                  <div className="flex items-center justify-center space-x-1 mb-4">
-                    <Star className="text-yellow-400 fill-current" size={16} />
-                    <span className="font-medium text-gray-900">{policy.rating}</span>
-                    <span className="text-sm text-gray-600">({getTotalScore(policy)}% match)</span>
-                  </div>
-                </div>
-
-                {/* Coverage & Premium */}
-                <div className="grid grid-cols-2 gap-3 mb-4">
-                  <div className="bg-green-50 rounded-lg p-3 text-center">
-                    <div className="flex items-center justify-center space-x-1 mb-1">
-                      <Shield className="text-green-600" size={14} />
-                      <span className="text-xs text-green-600 font-medium">Coverage</span>
-                    </div>
-                    <p className="font-bold text-green-700">{policy.coverage}</p>
-                  </div>
-                  <div className="bg-blue-50 rounded-lg p-3 text-center">
-                    <div className="flex items-center justify-center space-x-1 mb-1">
-                      <TrendingUp className="text-blue-600" size={14} />
-                      <span className="text-xs text-blue-600 font-medium">Premium</span>
-                    </div>
-                    <p className="font-bold text-blue-700">{policy.premium}</p>
-                  </div>
-                </div>
-
-                {/* Key Features Preview */}
-                <div className="space-y-2">
-                  <h4 className="font-medium text-gray-900 text-sm">Key Highlights</h4>
-                  <div className="space-y-1">
-                    {Object.entries(policy.features).slice(0, 3).map(([feature, value]) => (
-                      <div key={feature} className="flex items-center justify-between text-sm">
-                        <span className="text-gray-600">{feature}</span>
-                        <span className={`px-2 py-1 rounded-md text-xs font-medium border ${getFeatureColor(value, feature)}`}>
-                          {value}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-
-        {/* Detailed Comparison */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center space-x-2">
-              <Filter className="text-gray-600" size={20} />
-              <h2 className="font-bold text-gray-900">Detailed Comparison</h2>
-            </div>
-          </div>
-          
-          {/* Help Banner */}
-          <div className="bg-gradient-to-r from-orange-50 to-orange-100 rounded-xl p-4 mb-6 border border-orange-200">
-            <div className="flex items-start space-x-3">
-              <div className="w-8 h-8 bg-orange-200 rounded-lg flex items-center justify-center flex-shrink-0">
-                <Info size={16} className="text-orange-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-orange-900 mb-1">Understanding Insurance Terms</h3>
-                <p className="text-sm text-orange-800 mb-2">
-                  New to health insurance? No worries! Hover over the values or click the 
-                  <HelpCircle size={14} className="inline mx-1 text-orange-600" /> 
-                  icons to understand what each feature means and why it matters for your health coverage.
-                </p>
-                <div className="flex items-center space-x-4 text-xs text-orange-700">
-                  <div className="flex items-center space-x-1">
-                    <div className="w-3 h-3 bg-green-200 border border-green-300 rounded"></div>
-                    <span>Best Value</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <div className="w-3 h-3 bg-gray-200 border border-gray-300 rounded"></div>
-                    <span>Available</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <div className="w-3 h-3 bg-red-200 border border-red-300 rounded"></div>
-                    <span>Not Available</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          {/* Desktop Comparison Table */}
-          <div className="hidden lg:block bg-white rounded-xl border border-gray-100 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="text-left p-4 font-medium text-gray-900 min-w-[200px]">
-                      <div className="flex items-center">
-                        <span>Features</span>
-                        <div className="ml-2 group relative">
-                          <Info size={16} className="text-gray-400" />
-                          <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-gray-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 w-48">
-                            Click the info icons to learn what each feature means
-                            <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </th>
-                    {selectedPolicies.map(policy => (
-                      <th key={policy.id} className="text-center p-4 font-medium text-gray-900 min-w-[150px]">
-                        <div className="flex flex-col items-center space-y-1">
-                          <span className="text-lg">{policy.icon}</span>
-                          <span className="text-sm">{policy.name}</span>
-                        </div>
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {compareFeatures.map((feature, index) => (
-                    <motion.tr
-                      key={feature}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: index * 0.05 }}
-                      className="border-t border-gray-100 relative"
-                    >
-                      <td className="p-4 font-medium text-gray-900">
-                        <div className="flex items-center">
-                          <span>{feature}</span>
-                          <FeatureExplanation feature={feature} />
-                        </div>
-                      </td>
-                      {selectedPolicies.map(policy => {
-                        const val = policy.features[feature];
-                        return (
-                          <td key={policy.id} className="p-4 text-center">
-                            <FeatureTooltip feature={feature}>
-                              <span className={`px-3 py-2 rounded-lg text-sm font-medium border ${getFeatureColor(val, feature)} cursor-help`}>
-                                {val}
-                              </span>
-                            </FeatureTooltip>
-                          </td>
-                        );
-                      })}
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* Mobile Comparison Cards */}
-          <div className="lg:hidden space-y-4">
-            {compareFeatures.map((feature, index) => {
-              const featureInfo = featureDefinitions[feature as keyof typeof featureDefinitions];
-              const FeatureIcon = featureInfo?.icon || Info;
-              
-              return (
-                <motion.div
-                  key={feature}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="bg-white rounded-xl p-4 border border-gray-100"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-2">
-                      <div className="w-6 h-6 bg-orange-50 rounded-md flex items-center justify-center">
-                        <FeatureIcon size={14} className="text-orange-600" />
-                      </div>
-                      <h4 className="font-medium text-gray-900">{feature}</h4>
-                    </div>
-                    <FeatureExplanation feature={feature} />
-                  </div>
-                  
-                  {/* Feature Description for Mobile */}
-                  <div className="bg-gray-50 rounded-lg p-3 mb-3">
-                    <p className="text-xs text-gray-600 mb-1">{featureInfo?.description}</p>
-                    <p className="text-xs text-orange-600 font-medium">💡 {featureInfo?.tip}</p>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    {selectedPolicies.map(policy => {
-                      const val = policy.features[feature];
-                      return (
-                        <div key={policy.id} className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-lg">{policy.icon}</span>
-                            <span className="text-sm text-gray-600">{policy.name}</span>
-                          </div>
-                          <span className={`px-3 py-1 rounded-md text-sm font-medium border ${getFeatureColor(val, feature)}`}>
-                            {val}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* AI Recommendation */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mb-8"
-        >
-          <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-6 text-white">
-            <div className="flex items-start space-x-4">
-              <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Zap size={24} className="text-white" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-white mb-2">AI Recommendation</h3>
-                <p className="text-white/90 mb-4">
-                  Based on your comparison, <strong>HealthGuard Premium</strong> offers the best overall value with comprehensive coverage at a competitive price. It provides excellent cashless network coverage and includes mental health benefits.
-                </p>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                  <div className="flex items-center space-x-2">
-                    <TrendingUp size={16} />
-                    <span>Best Value Score: 94/100</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <CheckCircle size={16} />
-                    <span>Comprehensive Coverage</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Star size={16} />
-                    <span>High Customer Rating</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Action Buttons */}
-        <div className="space-y-4">
-          <button className="w-full bg-primary text-white py-4 rounded-xl font-medium hover:bg-primary/90 transition-colors flex items-center justify-center space-x-2">
-            <span>Get Quotes for Selected Policies</span>
-            <ArrowRight size={18} />
+    <div className="min-h-screen bg-gray-50 font-sans">
+      <PolicySelectionModal />
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4 sm:mb-0">Policy Comparison</h1>
+          <button onClick={handleModalOpen} className="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors shadow-sm hover:shadow-md">
+            <Plus size={18} />
+            <span>Add / Edit Policies</span>
           </button>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <button className="px-6 py-3 border-2 border-primary text-primary rounded-xl font-medium hover:bg-primary/5 transition-colors">
-              Save Comparison
-            </button>
-            <button className="px-6 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors">
-              Share Results
-            </button>
-            <button className="px-6 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50 transition-colors flex items-center justify-center space-x-2">
-              <Info size={16} />
-              <span>Get Expert Advice</span>
-            </button>
-          </div>
         </div>
+
+        {/* Loading and Error States */}
+        {isLoading && (
+            <div className="flex flex-col items-center justify-center h-96 bg-white rounded-xl border">
+                <Loader2 className="animate-spin text-primary" size={48} />
+                <p className="mt-4 text-lg font-medium text-gray-700">Fetching latest policy data...</p>
+            </div>
+        )}
+        {error && !isLoading && (
+             <div className="flex flex-col items-center justify-center h-96 bg-red-50 rounded-xl border border-red-200 p-4 text-center">
+                <ServerCrash className="text-red-500" size={48} />
+                <p className="mt-4 text-lg font-medium text-red-700">Oops! Something went wrong.</p>
+                <p className="text-gray-600">{error}</p>
+            </div>
+        )}
+
+        {/* Main Content - Renders only when data is available */}
+        <AnimatePresence>
+        {!isLoading && !error && comparisonData && (
+            <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+            >
+                {/* Policy Cards - Horizontally Scrollable */}
+                <div className="relative mb-8">
+                    <div className="overflow-x-auto pb-4 -mx-4 px-4">
+                        <div className="flex space-x-6">
+                            {selectedPolicyNames.map((policyName, index) => {
+                                const policyDetails = allPolicies.find(p => p.name === policyName);
+                                const policyFeatures = comparisonData[policyName];
+                                if (!policyDetails || !policyFeatures) return null;
+                                
+                                return (
+                                    <motion.div
+                                        key={policyDetails.id}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: index * 0.1 }}
+                                        className="bg-white rounded-2xl overflow-hidden border border-gray-200 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col w-80 flex-shrink-0"
+                                    >
+                                        <div className="p-6 bg-gray-50/70 text-center">
+                                            <div className="w-20 h-20 bg-orange-100 rounded-2xl flex items-center justify-center mx-auto mb-4 text-4xl transform group-hover:scale-110 transition-transform">
+                                                {policyDetails.icon}
+                                            </div>
+                                            <h3 className="font-bold text-lg text-gray-900 mb-1">{policyDetails.name}</h3>
+                                            <p className="text-sm text-gray-600">{policyDetails.company}</p>
+                                        </div>
+                                        <div className="p-6 flex-grow">
+                                            <h4 className="font-semibold text-gray-800 text-sm mb-3">Key Highlights</h4>
+                                            <div className="space-y-3">
+                                            {compareFeatures.slice(0, 3).map((feature) => {
+                                              const val = featureDefinitions[feature as keyof typeof featureDefinitions].formatter(policyFeatures);
+                                              const featureIcon = featureDefinitions[feature as keyof typeof featureDefinitions].icon;
+                                              const FeatureIcon = featureIcon;
+                                              return (
+                                                <div key={feature} className="flex items-center justify-between text-sm">
+                                                    <div className="flex items-center space-x-2">
+                                                        <FeatureIcon className="text-gray-400" size={16} />
+                                                        <span className="text-gray-600">{feature}</span>
+                                                    </div>
+                                                  <span className={`px-2 py-0.5 rounded-md text-xs font-medium border ${getFeatureColor(val, feature)}`}>
+                                                    {val}
+                                                  </span>
+                                                </div>
+                                              )
+                                            })}
+                                            </div>
+                                        </div>
+                                    </motion.div>
+                                )
+                            })}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Detailed Comparison Table - Horizontally Scrollable */}
+                <div className="hidden lg:block bg-white rounded-xl border border-gray-100 overflow-x-auto mb-8">
+                    <table className="w-full">
+                        <thead className="bg-gray-50">
+                        <tr>
+                            <th className="text-left p-4 font-medium text-gray-900 min-w-[200px]">Features</th>
+                            {selectedPolicyNames.map(name => (
+                            <th key={name} className="text-center p-4 font-medium text-gray-900 min-w-[150px]">
+                                <div className="flex flex-col items-center space-y-1">
+                                    <span className="text-lg">{allPolicies.find(p => p.name === name)?.icon}</span>
+                                    <span className="text-sm">{name}</span>
+                                </div>
+                            </th>
+                            ))}
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {compareFeatures.map((feature, index) => (
+                            <motion.tr
+                            key={feature}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: index * 0.05 }}
+                            className="border-t border-gray-100"
+                            >
+                            <td className="p-4 font-medium text-gray-900">
+                                <div className="flex items-center">
+                                <span>{feature}</span>
+                                <FeatureExplanation feature={feature} />
+                                </div>
+                            </td>
+                            {selectedPolicyNames.map(policyName => {
+                                const policyFeatures = comparisonData[policyName];
+                                if (!policyFeatures) return <td key={policyName}></td>;
+                                const val = featureDefinitions[feature as keyof typeof featureDefinitions].formatter(policyFeatures);
+                                return (
+                                    <td key={policyName} className="p-4 text-center align-top">
+                                        {feature === 'Room Rent Limit' && val.includes('(') ? (
+                                            <ul className="inline-block text-left text-sm font-medium text-gray-700 list-disc list-inside">
+                                                {val.split('(').map(part => part.replace(/[()]/g, '').trim()).filter(Boolean).map((item, i) => (
+                                                    <li key={i} className="whitespace-nowrap">{item.charAt(0).toUpperCase() + item.slice(1)}</li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <span className={`px-3 py-2 rounded-lg text-sm font-medium border ${getFeatureColor(val, feature)}`}>
+                                                {val}
+                                            </span>
+                                        )}
+                                    </td>
+                                );
+                            })}
+                            </motion.tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* AI Recommendation */}
+                {aiAnalysis && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.5 }}
+                        className="mb-8"
+                    >
+                        <div className="bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl p-6 text-white shadow-lg">
+                            <div className="flex items-start space-x-4">
+                                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                                    <Zap size={24} className="text-white" />
+                                </div>
+                                <div className="flex-1">
+                                    <h3 className="font-bold text-white mb-3 text-lg">AI Recommendation</h3>
+                                    <div className="space-y-2">
+                                        {aiAnalysis.split('\n').filter(line => line.trim() !== '').map((point, i) => (
+                                          <div key={i} className="flex items-start space-x-3">
+                                              <CheckCircle size={18} className="text-green-300 mt-0.5 flex-shrink-0"/>
+                                              <p className="text-white/90">
+                                                  {point.replace(/^- /, '')}
+                                              </p>
+                                          </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="space-y-4">
+                    <button className="w-full bg-primary text-white py-4 rounded-xl font-semibold hover:bg-primary/90 transition-colors flex items-center justify-center space-x-2 text-lg shadow-md hover:shadow-lg">
+                        <span>Get Quotes for Selected Policies</span>
+                        <ArrowRight size={20} />
+                    </button>
+                </div>
+
+            </motion.div>
+        )}
+        </AnimatePresence>
       </div>
     </div>
   );

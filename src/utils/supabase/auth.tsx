@@ -39,9 +39,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       email,
       password,
       options: {
+        emailRedirectTo: `${window.location.origin}`, // redirect back to your app
         data: { full_name: fullName }
       }
-    });
+   });
     if (error) throw error;
     return data;
   };
@@ -49,8 +50,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithEmail = async (email: string, password: string) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
+
+    // <-- changed message to the more informative text you requested
+    if (data.user && !data.user.email_confirmed_at) {
+        throw new Error("Your Email is not confirmed yet. Please check your mail and click the link to verify. Try again after verification.");
+    }
+
     return data;
-  };
+  }
+
 
   const signOutUser = async () => {
     await supabase.auth.signOut();
@@ -68,3 +76,19 @@ export const useAuth = () => {
   if (!ctx) throw new Error('useAuth must be used inside AuthProvider');
   return ctx;
 };
+export { supabase };
+
+export async function getUserProfile(userId: string) {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('profile_data, profile_completed')
+    .eq('id', userId)
+    .single();
+
+  if (error) {
+    console.error("Error fetching profile:", error);
+    return null;
+  }
+  return data;
+}
+

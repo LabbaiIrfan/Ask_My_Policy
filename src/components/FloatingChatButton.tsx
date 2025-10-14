@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, Mic, MicOff, Bot, Sparkles } from 'lucide-react';
+import { useAuth } from '../utils/supabase/auth';
 
 interface ChatMessage {
   id: string;
@@ -10,6 +11,17 @@ interface ChatMessage {
 }
 
 export function FloatingChatButton() {
+  // try to get current auth user from your AuthProvider (this is the same hook from your auth.tsx)
+  let authUser: any = null;
+  try {
+    const auth = useAuth();
+    authUser = auth?.user ?? null;
+  } catch (e) {
+    // If this component is rendered outside AuthProvider for some reason,
+    // authUser stays null. We still guard using local mock_session below.
+    authUser = null;
+  }
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -81,6 +93,46 @@ export function FloatingChatButton() {
     setIsListening(!isListening);
   };
 
+  // New guard: if user is not signed-in (or is demo) -> show message and don't open chat.
+  const handleChatClick = () => {
+    // detect demo session stored by your demo flow (LoginScreen stored mock_session)
+    let isDemoLocal = false;
+    try {
+      const mock = typeof window !== 'undefined' ? localStorage.getItem('mock_session') : null;
+      if (mock) {
+        const parsed = JSON.parse(mock);
+        // the demo session you set up stores user with id like 'demo_user_...'
+        const mockId = parsed?.user?.id;
+        if (typeof mockId === 'string' && mockId.startsWith('demo_user_')) {
+          isDemoLocal = true;
+        }
+      }
+    } catch (e) {
+      isDemoLocal = false;
+    }
+
+    // If auth user exists but is a demo user (id starting with demo_user_), block
+    if (authUser && typeof authUser.id === 'string' && authUser.id.startsWith('demo_user_')) {
+      alert('Please log in with a verified account to use the chatbot.');
+      return;
+    }
+
+    // If we have a demo stored in local storage (demo flow) and no real auth user, block
+    if (!authUser && isDemoLocal) {
+      alert('Please log in with a verified account to use the chatbot.');
+      return;
+    }
+
+    // If no auth user and no demo local session, also block (not signed in)
+    if (!authUser && !isDemoLocal) {
+      alert('Please log in to use the chatbot.');
+      return;
+    }
+
+    // Otherwise we have a real signed-in user -> open chat normally
+    setIsOpen(true);
+  };
+
   return (
     <>
       <motion.div
@@ -92,7 +144,7 @@ export function FloatingChatButton() {
         <motion.button
           whileHover={{ scale: 1.1, rotate: 5 }}
           whileTap={{ scale: 0.9 }}
-          onClick={() => setIsOpen(true)}
+          onClick={handleChatClick} // <-- guarded click
           className="relative w-16 h-16 gradient-orange rounded-full shadow-2xl flex items-center justify-center group overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full blur animate-pulse opacity-75" />
@@ -284,4 +336,3 @@ export function FloatingChatButton() {
     </>
   );
 }
-

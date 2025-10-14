@@ -26,6 +26,8 @@ import {
 import { ButtonPrimary } from './ButtonPrimary';
 import { Input } from './ui/input';
 import { Progress } from './ui/progress';
+// Update the import path to the correct location of your Supabase client
+import { supabase } from '../utils/supabase/auth'; // Adjust path as needed
 
 interface ProfileSetupProps {
   userData: any;
@@ -174,11 +176,29 @@ export function ProfileSetup({ onComplete, onSkip }: ProfileSetupProps) {
       setCurrentStep(currentStep + 1);
     } else {
       try {
-        // Get current user session
+        // ✅ Save to Supabase
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { error } = await supabase.from('profiles')
+            .upsert({
+              id: user.id,
+              personal: profileData.personal,
+              financial: profileData.financial,
+              lifestyle: profileData.lifestyle,
+              health: profileData.health,
+              policy_preferences: profileData.policyPreferences,
+              profile_completed: true,
+              updated_at: new Date().toISOString()
+            });
+
+          if (error) {
+            console.error('Supabase profile save error:', error.message);
+          }
+        }
+
+        // ✅ Keep localStorage fallback
         const session = JSON.parse(localStorage.getItem('mock_session') || '{}');
-        
         if (session.user) {
-          // Update user in mock database
           const existingUsers = JSON.parse(localStorage.getItem('mock_users') || '[]');
           const updatedUsers = existingUsers.map((user: any) => {
             if (user.id === session.user.id) {
@@ -193,8 +213,6 @@ export function ProfileSetup({ onComplete, onSkip }: ProfileSetupProps) {
           });
           
           localStorage.setItem('mock_users', JSON.stringify(updatedUsers));
-          
-          // Update session
           const updatedSession = {
             ...session,
             user: {
@@ -209,7 +227,6 @@ export function ProfileSetup({ onComplete, onSkip }: ProfileSetupProps) {
         onComplete(profileData);
       } catch (error) {
         console.error('Profile setup error:', error);
-        // Still complete the setup even if storage fails
         onComplete(profileData);
       }
     }

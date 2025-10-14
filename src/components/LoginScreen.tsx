@@ -74,13 +74,18 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
           fullName: formData.fullName
         });
 
-        onLogin({
-          id: `pending_${Date.now()}`,
-          email: formData.email,
-          fullName: formData.fullName,
-          isNewUser: true,
-          profileCompleted: false,
-          profileData: null
+        // ✅ Switch back to login mode instead of logging in
+        setIsSignUp(false);
+        setFormData({
+          email: formData.email, // keep email filled in
+          password: '',
+          confirmPassword: '',
+          fullName: '',
+          agreeToTerms: false
+        });
+
+        setErrors({
+          submit: "Account created successfully. Please check your email and verify before logging in."
         });
       } else {
         await signInWithEmail(formData.email, formData.password);
@@ -95,7 +100,7 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
         });
       }
     } catch (err: any) {
-      setErrors({ submit: err?.message || 'Authentication failed. Please try again.' });
+      setErrors({ submit: err.message });
     } finally {
       setIsLoading(false);
     }
@@ -357,8 +362,22 @@ export function LoginScreen({ onLogin, onForgotPassword }: LoginScreenProps) {
               </div>
 
               {errors.submit && (
-                <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                  <p className="text-red-600 text-sm">{errors.submit}</p>
+                <div
+                  className={`mt-4 p-3 rounded-lg border ${
+                    errors.submit.includes("successfully") || errors.submit.includes("verify")
+                      ? "bg-green-50 border-green-200"
+                      : "bg-red-50 border-red-200"
+                  }`}
+                >
+                  <p
+                    className={`text-sm ${
+                      errors.submit.includes("successfully") || errors.submit.includes("verify")
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {errors.submit}
+                  </p>
                 </div>
               )}
             </form>

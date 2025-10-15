@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { SplashScreen } from './components/SplashScreen';
 import { LoginScreen } from './components/LoginScreen';
-import { ProfessionalHeader } from './components/Header'; // Retained target import
-import { ProfessionalSidebar } from './components/SideBar'; // Retained target import
+import { ProfessionalHeader } from './components/Header';
+import { ProfessionalSidebar } from './components/SideBar';
 import { PolicyCatalog } from './components/PolicyCatalog';
 import { ExploreScreen } from './components/ExploreScreen';
 import { MyPolicies } from './components/MyPolicies';
@@ -14,9 +14,12 @@ import { FloatingChatButton } from './components/FloatingChatButton';
 import { GlossaryScreen } from './components/GlossaryScreen';
 import { CompanyAnalysis } from './components/CompanyAnalysis';
 import { PolicyDetailScreen } from './components/PolicyDetailScreen';
-import { BranchLocatorScreen } from './components/BranchLocatorScreen'; // Added from source
+import { BranchLocatorScreen } from './components/BranchLocatorScreen';
 
-// Updated to include 'branch-locator' from the source code
+import { useAuth } from './utils/supabase/auth'; // 🔄 use Supabase context
+import { supabase } from './utils/supabase/info'; // 🔄 client
+
+// App states
 type AppState = 'splash' | 'login' | 'profile-setup' | 'catalog' | 'explore' | 'policies' | 'compare' | 'claims' | 'profile' | 'glossary' | 'analysis' | 'policy-detail' | 'branch-locator';
 
 interface UserData {
@@ -52,6 +55,8 @@ export default function App() {
       preferences: {}
     }
   });
+
+  const { user, signOutUser } = useAuth(); // 🔄 Supabase user + logout
 
   const handleLogin = (loginUserData: Partial<UserData> & { isNewUser?: boolean; profileCompleted?: boolean }) => {
     const normalized = {
@@ -90,60 +95,42 @@ export default function App() {
     setAppState('catalog');
   };
 
+  // 🔄 Updated: check Supabase first, then demo
   const checkSession = async () => {
     try {
-      const session = JSON.parse(localStorage.getItem('mock_session') || '{}');
-
-      if (!session.access_token || !session.user) {
-        setAppState('catalog');
-        setIsLoggedIn(false);
-        return;
-      }
-
-      if (session.expires_at && Date.now() > session.expires_at) {
-        localStorage.removeItem('mock_session');
-        setAppState('catalog');
-        setIsLoggedIn(false);
-        return;
-      }
-
-      const existingUsers = JSON.parse(localStorage.getItem('mock_users') || '[]');
-      const currentUser = existingUsers.find((user: any) => user.id === session.user.id);
-
-      if (currentUser) {
+      const { data } = await supabase.auth.getSession();
+      if (data.session?.user) {
+        const supaUser = data.session.user;
         const restoredUserData: UserData = {
-          id: currentUser.id,
-          email: currentUser.email,
-          fullName: currentUser.fullName,
+          id: supaUser.id,
+          email: supaUser.email || '',
+          fullName: supaUser.user_metadata?.full_name || '',
           isNewUser: false,
-          profileCompleted: currentUser.profileCompleted || false,
-          profileData: currentUser.profileData || null,
-          preferences: currentUser.preferences || {
-            profileCompleted: currentUser.profileCompleted || false,
-            personalInfo: {},
-            insuranceHistory: {},
-            preferences: {}
-          }
+          profileCompleted: false,
+          profileData: null,
+          preferences: userData.preferences
         };
-
         setUserData(restoredUserData);
         setIsLoggedIn(true);
-
-        if (!restoredUserData.profileCompleted) {
-          setAppState('profile-setup');
-        } else {
-          setAppState('catalog');
-        }
-      } else {
-        localStorage.removeItem('mock_session');
         setAppState('catalog');
-        setIsLoggedIn(false);
+        return;
       }
+
+      // fallback to demo session
+      const demoSession = JSON.parse(localStorage.getItem('mock_session') || '{}');
+      if (demoSession.user) {
+        setUserData(demoSession.user);
+        setIsLoggedIn(true);
+        setAppState('catalog');
+        return;
+      }
+
+      setIsLoggedIn(false);
+      setAppState('catalog');
     } catch (error) {
       console.error('Session check error:', error);
-      localStorage.removeItem('mock_session');
-      setAppState('catalog');
       setIsLoggedIn(false);
+      setAppState('catalog');
     }
   };
 
@@ -170,11 +157,10 @@ export default function App() {
 
   const handleLogout = async () => {
     try {
-      localStorage.removeItem('mock_session');
-
+      await signOutUser(); // 🔄 supabase logout
+      localStorage.removeItem('mock_session'); // 🔄 demo cleanup
       setIsLoggedIn(false);
       setAppState('catalog');
-      setIsMobileSidebarOpen(false);
       setUserData({
         fullName: '',
         email: '',
@@ -220,8 +206,8 @@ export default function App() {
         return <CompanyAnalysis onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} />;
       case 'policy-detail':
         return <PolicyDetailScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} onBack={() => setAppState(previousState)} />;
-      case 'branch-locator': // Added from source
-        return <BranchLocatorScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} />; // Added from source
+      case 'branch-locator':
+        return <BranchLocatorScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} />;
       case 'catalog':
       default:
         return <PolicyCatalog onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} onNavigateToDetail={navigateToDetail} />;
@@ -230,12 +216,10 @@ export default function App() {
 
   return (
     <div className="relative w-full min-h-screen">
-      {/* Splash Screen */}
       {appState === 'splash' && (
         <SplashScreen onComplete={() => setAppState('catalog')} />
       )}
 
-      {/* Login Screen */}
       {appState === 'login' && (
         <LoginScreen
           onLogin={handleLogin}
@@ -243,7 +227,6 @@ export default function App() {
         />
       )}
 
-      {/* Profile Setup */}
       {appState === 'profile-setup' && (
         <ProfileSetup
           userData={userData}
@@ -252,15 +235,13 @@ export default function App() {
         />
       )}
 
-      {/* Main App */}
       {appState !== 'splash' && appState !== 'login' && appState !== 'profile-setup' && (
         <div className="flex h-screen bg-gray-50">
-          {/* Desktop Sidebar */}
           <div className="hidden lg:block">
             <ProfessionalSidebar
               isOpen={true}
               isCollapsed={isDesktopSidebarCollapsed}
-              onClose={() => { }}
+              onClose={() => {}}
               onToggle={toggleDesktopSidebar}
               onNavigate={handleNavigate}
               onLogout={handleLogout}
@@ -272,9 +253,7 @@ export default function App() {
             />
           </div>
 
-          {/* Main Content Area */}
           <div className="flex-1 flex flex-col overflow-hidden">
-            {/* Header - Show on all pages */}
             <ProfessionalHeader
               userName={isLoggedIn ? userData.fullName : ''}
               isLoggedIn={isLoggedIn}
@@ -282,29 +261,25 @@ export default function App() {
               onLogin={() => setAppState('login')}
               title={
                 appState === 'catalog' ? 'Health Insurance Plans' :
-                  appState === 'policies' ? (isLoggedIn ? 'My Health Policies' : 'Health Insurance Plans') :
-                    appState === 'claims' ? 'Health Claims' :
-                      appState === 'explore' ? 'Explore Health Plans' :
-                        appState === 'compare' ? 'Plan Comparison' :
-                          appState === 'profile' ? 'Health Profile' :
-                            appState === 'glossary' ? 'Insurance Glossary' :
-                              appState === 'analysis' ? 'Company Analysis' :
-                                appState === 'policy-detail' ? 'Policy Details' :
-                                  appState === 'branch-locator' ? 'Branch Locator' : // Added from source
-                                    'Health Insurance Plans'
+                appState === 'policies' ? (isLoggedIn ? 'My Health Policies' : 'Health Insurance Plans') :
+                appState === 'claims' ? 'Health Claims' :
+                appState === 'explore' ? 'Explore Health Plans' :
+                appState === 'compare' ? 'Plan Comparison' :
+                appState === 'profile' ? 'Health Profile' :
+                appState === 'glossary' ? 'Insurance Glossary' :
+                appState === 'analysis' ? 'Company Analysis' :
+                appState === 'policy-detail' ? 'Policy Details' :
+                appState === 'branch-locator' ? 'Branch Locator' :
+                'Health Insurance Plans'
               }
-              breadcrumbs={[
-                { label: 'Ask My Policy' } // Retained target breadcrumb label
-              ]}
+              breadcrumbs={[{ label: 'Ask My Policy' }]}
             />
 
-            {/* Content */}
             <div className="flex-1 overflow-auto">
               {renderCurrentScreen()}
             </div>
           </div>
 
-          {/* Mobile Sidebar */}
           <ProfessionalSidebar
             isOpen={isMobileSidebarOpen}
             onClose={() => setIsMobileSidebarOpen(false)}
@@ -317,7 +292,6 @@ export default function App() {
             userName={userData.fullName}
           />
 
-          {/* Floating Chat Button */}
           <FloatingChatButton />
         </div>
       )}

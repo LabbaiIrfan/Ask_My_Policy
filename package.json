@@ -4,13 +4,14 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-  "dev": "vite",
-  "dev:functions": "deno run --allow-net --allow-env --allow-read src/supabase/functions/server/index.tsx",
+    "dev": "vite",
+    "dev:functions": "deno run --allow-net --allow-env --allow-read src/supabase/functions/server/index.tsx",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.58.0",
     "@tailwindcss/vite": "^4.1.14",
     "lucide-react": "^0.544.0",
     "motion": "^12.23.22",

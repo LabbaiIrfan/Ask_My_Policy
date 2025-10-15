@@ -56,7 +56,7 @@ export default function App() {
     }
   });
 
-  const { user, signOutUser } = useAuth(); // 🔄 Supabase user + logout
+  const { signOutUser } = useAuth(); // 🔄 Supabase user + logout
 
   const handleLogin = (loginUserData: Partial<UserData> & { isNewUser?: boolean; profileCompleted?: boolean }) => {
     const normalized = {

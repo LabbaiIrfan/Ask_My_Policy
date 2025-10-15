@@ -7,7 +7,6 @@ import {
   CheckCircle,
   Clock,
   DollarSign,
-  TrendingUp,
   ArrowRight,
 } from 'lucide-react';
 

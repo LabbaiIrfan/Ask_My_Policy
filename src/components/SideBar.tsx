@@ -235,7 +235,7 @@ export function ProfessionalSidebar({
                         <Heart className="w-7 h-7 text-white" />
                       </div>
                       <div>
-                        <h2 className="text-xl font-bold text-sidebar-foreground whitespace-nowrap">Ask My Policy</h2>
+                        <h2 className="text-xl font-bold text-sidebar-foreground whitespace-nowrap">Ask My Policyyy</h2>
                         <p className="text-sm text-sidebar-foreground/70 whitespace-nowrap">Smart Health Insurance</p>
                       </div>
                     </motion.div>

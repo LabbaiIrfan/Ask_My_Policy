@@ -15,12 +15,33 @@ import { GlossaryScreen } from './components/GlossaryScreen';
 import { CompanyAnalysis } from './components/CompanyAnalysis';
 import { PolicyDetailScreen } from './components/PolicyDetailScreen';
 import { BranchLocatorScreen } from './components/BranchLocatorScreen';
+import { BuyPolicyScreen } from './components/BuyPolicyScreen';
 
-import { useAuth } from './utils/supabase/auth'; // 🔄 use Supabase context
-import { supabase } from './utils/supabase/info'; // 🔄 client
+import { useAuth } from './utils/supabase/auth';
+import { supabase } from './utils/supabase/info';
 
-// App states
-type AppState = 'splash' | 'login' | 'profile-setup' | 'catalog' | 'explore' | 'policies' | 'compare' | 'claims' | 'profile' | 'glossary' | 'analysis' | 'policy-detail' | 'branch-locator';
+type AppState =
+  | 'splash'
+  | 'login'
+  | 'profile-setup'
+  | 'catalog'
+  | 'explore'
+  | 'policies'
+  | 'compare'
+  | 'claims'
+  | 'profile'
+  | 'glossary'
+  | 'analysis'
+  | 'policy-detail'
+  | 'branch-locator'
+  | 'buy-policy';
+
+interface UserPreferences {
+  profileCompleted: boolean;
+  personalInfo: Record<string, any>;
+  insuranceHistory: Record<string, any>;
+  preferences: Record<string, any>;
+}
 
 interface UserData {
   id?: string;
@@ -29,12 +50,7 @@ interface UserData {
   profileCompleted: boolean;
   profileData: any;
   isNewUser?: boolean;
-  preferences: {
-    profileCompleted: boolean;
-    personalInfo: Record<string, any>;
-    insuranceHistory: Record<string, any>;
-    preferences: Record<string, any>;
-  };
+  preferences: UserPreferences;
 }
 
 export default function App() {
@@ -43,6 +59,7 @@ export default function App() {
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [buyPolicyData, setBuyPolicyData] = useState<any>(null);
   const [userData, setUserData] = useState<UserData>({
     fullName: '',
     email: '',
@@ -56,22 +73,34 @@ export default function App() {
     }
   });
 
-  const { signOutUser } = useAuth(); // 🔄 Supabase user + logout
+  const { signOutUser } = useAuth();
 
-  const handleLogin = (loginUserData: Partial<UserData> & { isNewUser?: boolean; profileCompleted?: boolean }) => {
-    const normalized = {
+  // ✅ Unified login handler with proper typing
+  const handleLogin = (
+    loginUserData: Partial<UserData> & {
+      isNewUser?: boolean;
+      profileCompleted?: boolean;
+    }
+  ) => {
+    const normalized: UserData = {
+      id: loginUserData.id,
       fullName: loginUserData.fullName || '',
       email: loginUserData.email || '',
-      id: (loginUserData as any).id,
       profileCompleted: !!loginUserData.profileCompleted,
-      profileData: (loginUserData as any).profileData || null,
-      preferences: (loginUserData as any).preferences || userData.preferences
-    } as UserData;
+      profileData: loginUserData.profileData || null,
+      isNewUser: loginUserData.isNewUser,
+      preferences: loginUserData.preferences || {
+        profileCompleted: !!loginUserData.profileCompleted,
+        personalInfo: {},
+        insuranceHistory: {},
+        preferences: {}
+      }
+    };
 
     setUserData(normalized);
     setIsLoggedIn(true);
 
-    if ((loginUserData as any).isNewUser || !normalized.profileCompleted) {
+    if (loginUserData.isNewUser || !normalized.profileCompleted) {
       setAppState('profile-setup');
     } else {
       setAppState('catalog');
@@ -82,7 +111,7 @@ export default function App() {
     setUserData(prev => ({
       ...prev,
       profileCompleted: true,
-      profileData: profileData,
+      profileData,
       preferences: {
         ...prev.preferences,
         profileCompleted: true
@@ -95,42 +124,92 @@ export default function App() {
     setAppState('catalog');
   };
 
-  // 🔄 Updated: check Supabase first, then demo
+  // ✅ First try Supabase session, then fallback to mock_session + mock_users
   const checkSession = async () => {
     try {
-      const { data } = await supabase.auth.getSession();
+      // 1️⃣ Try Supabase session
+      const { data, error } = await supabase.auth.getSession();
+      if (error) throw error;
+
       if (data.session?.user) {
         const supaUser = data.session.user;
         const restoredUserData: UserData = {
           id: supaUser.id,
           email: supaUser.email || '',
-          fullName: supaUser.user_metadata?.full_name || '',
-          isNewUser: false,
-          profileCompleted: false,
+          fullName:
+            (supaUser.user_metadata as any)?.full_name ||
+            (supaUser.user_metadata as any)?.name ||
+            '',
+          profileCompleted: false, // can be updated later from DB
           profileData: null,
-          preferences: userData.preferences
+          isNewUser: false,
+          preferences: {
+            profileCompleted: false,
+            personalInfo: {},
+            insuranceHistory: {},
+            preferences: {}
+          }
         };
+
         setUserData(restoredUserData);
         setIsLoggedIn(true);
         setAppState('catalog');
         return;
       }
 
-      // fallback to demo session
-      const demoSession = JSON.parse(localStorage.getItem('mock_session') || '{}');
-      if (demoSession.user) {
-        setUserData(demoSession.user);
-        setIsLoggedIn(true);
+      // 2️⃣ Fallback: old mock_session logic
+      const session = JSON.parse(localStorage.getItem('mock_session') || '{}');
+
+      if (!session.access_token || !session.user) {
         setAppState('catalog');
+        setIsLoggedIn(false);
         return;
       }
 
-      setIsLoggedIn(false);
-      setAppState('catalog');
+      if (session.expires_at && Date.now() > session.expires_at) {
+        localStorage.removeItem('mock_session');
+        setAppState('catalog');
+        setIsLoggedIn(false);
+        return;
+      }
+
+      const existingUsers = JSON.parse(localStorage.getItem('mock_users') || '[]');
+      const currentUser = existingUsers.find((user: any) => user.id === session.user.id);
+
+      if (currentUser) {
+        const restoredUserData: UserData = {
+          id: currentUser.id,
+          email: currentUser.email,
+          fullName: currentUser.fullName,
+          profileCompleted: currentUser.profileCompleted || false,
+          profileData: currentUser.profileData || null,
+          isNewUser: false,
+          preferences: {
+            profileCompleted: currentUser.profileCompleted || false,
+            personalInfo: currentUser.personalInfo || {},
+            insuranceHistory: currentUser.insuranceHistory || {},
+            preferences: currentUser.preferences || {}
+          }
+        };
+
+        setUserData(restoredUserData);
+        setIsLoggedIn(true);
+
+        if (!restoredUserData.profileCompleted) {
+          setAppState('profile-setup');
+        } else {
+          setAppState('catalog');
+        }
+      } else {
+        localStorage.removeItem('mock_session');
+        setAppState('catalog');
+        setIsLoggedIn(false);
+      }
     } catch (error) {
       console.error('Session check error:', error);
-      setIsLoggedIn(false);
+      localStorage.removeItem('mock_session');
       setAppState('catalog');
+      setIsLoggedIn(false);
     }
   };
 
@@ -155,12 +234,57 @@ export default function App() {
     setAppState('policy-detail');
   };
 
+  const navigateToBuyPolicy = (
+    policyData: any,
+    selectedAddOns: string[] = [],
+    selectedRiders: string[] = []
+  ) => {
+    setBuyPolicyData({
+      policyData,
+      selectedAddOns,
+      selectedRiders
+    });
+    setPreviousState(appState);
+    setAppState('buy-policy');
+  };
+
+  const quickBuyPolicy = (policy: any) => {
+    let description = 'Comprehensive health insurance coverage';
+
+    if (policy.features) {
+      if (Array.isArray(policy.features)) {
+        description = policy.features.join(', ');
+      } else if (typeof policy.features === 'object') {
+        const featureEntries = Object.entries(policy.features).slice(0, 3);
+        description = featureEntries
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(', ');
+      }
+    }
+
+    const policyData = {
+      name: policy.name,
+      company: policy.company,
+      coverAmount: policy.coverage,
+      premium: policy.premium,
+      rating: policy.rating,
+      reviews: policy.reviews,
+      description
+    };
+
+    navigateToBuyPolicy(policyData, [], []);
+  };
+
   const handleLogout = async () => {
     try {
-      await signOutUser(); // 🔄 supabase logout
-      localStorage.removeItem('mock_session'); // 🔄 demo cleanup
+      // Supabase logout
+      await signOutUser();
+      // Demo logout cleanup
+      localStorage.removeItem('mock_session');
+
       setIsLoggedIn(false);
       setAppState('catalog');
+      setIsMobileSidebarOpen(false);
       setUserData({
         fullName: '',
         email: '',
@@ -191,35 +315,119 @@ export default function App() {
 
     switch (appState) {
       case 'explore':
-        return <ExploreScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} userData={isLoggedIn ? userData : null} onNavigateToDetail={navigateToDetail} />;
+        return (
+          <ExploreScreen
+            onOpenMenu={openMobileMenu}
+            onToggleSidebar={toggleDesktopSidebar}
+            userData={isLoggedIn ? userData : null}
+            onNavigateToDetail={navigateToDetail}
+            onBuyPolicy={quickBuyPolicy}
+          />
+        );
       case 'policies':
-        return isLoggedIn ? <MyPolicies onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} /> : <PolicyCatalog onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} onNavigateToDetail={navigateToDetail} />;
+        return isLoggedIn ? (
+          <MyPolicies
+            onOpenMenu={openMobileMenu}
+            onToggleSidebar={toggleDesktopSidebar}
+          />
+        ) : (
+          <PolicyCatalog
+            onOpenMenu={openMobileMenu}
+            onToggleSidebar={toggleDesktopSidebar}
+            onNavigateToDetail={navigateToDetail}
+            onBuyPolicy={quickBuyPolicy}
+          />
+        );
       case 'compare':
-        return <ComparisonScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} />;
+        return (
+          <ComparisonScreen
+            onOpenMenu={openMobileMenu}
+            onToggleSidebar={toggleDesktopSidebar}
+          />
+        );
       case 'claims':
-        return <ClaimsScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} />;
+        return (
+          <ClaimsScreen
+            onOpenMenu={openMobileMenu}
+            onToggleSidebar={toggleDesktopSidebar}
+          />
+        );
       case 'profile':
-        return isLoggedIn ? <ProfileScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} userName={userData.fullName} /> : <PolicyCatalog onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} onNavigateToDetail={navigateToDetail} />;
+        return isLoggedIn ? (
+          <ProfileScreen
+            onOpenMenu={openMobileMenu}
+            onToggleSidebar={toggleDesktopSidebar}
+            userName={userData.fullName}
+          />
+        ) : (
+          <PolicyCatalog
+            onOpenMenu={openMobileMenu}
+            onToggleSidebar={toggleDesktopSidebar}
+            onNavigateToDetail={navigateToDetail}
+            onBuyPolicy={quickBuyPolicy}
+          />
+        );
       case 'glossary':
-        return <GlossaryScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} />;
+        return (
+          <GlossaryScreen
+            onOpenMenu={openMobileMenu}
+            onToggleSidebar={toggleDesktopSidebar}
+          />
+        );
       case 'analysis':
-        return <CompanyAnalysis onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} />;
+        return (
+          <CompanyAnalysis
+            onOpenMenu={openMobileMenu}
+            onToggleSidebar={toggleDesktopSidebar}
+          />
+        );
       case 'policy-detail':
-        return <PolicyDetailScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} onBack={() => setAppState(previousState)} />;
+        return (
+          <PolicyDetailScreen
+            onOpenMenu={openMobileMenu}
+            onToggleSidebar={toggleDesktopSidebar}
+            onBack={() => setAppState(previousState)}
+            onBuyPolicy={navigateToBuyPolicy}
+          />
+        );
       case 'branch-locator':
-        return <BranchLocatorScreen onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} />;
+        return (
+          <BranchLocatorScreen
+            onOpenMenu={openMobileMenu}
+            onToggleSidebar={toggleDesktopSidebar}
+          />
+        );
+      case 'buy-policy':
+        return buyPolicyData ? (
+          <BuyPolicyScreen
+            onBack={() => setAppState(previousState)}
+            policyData={buyPolicyData.policyData}
+            selectedAddOns={buyPolicyData.selectedAddOns}
+            selectedRiders={buyPolicyData.selectedRiders}
+            userData={isLoggedIn ? userData : undefined}
+          />
+        ) : null;
       case 'catalog':
       default:
-        return <PolicyCatalog onOpenMenu={openMobileMenu} onToggleSidebar={toggleDesktopSidebar} onNavigateToDetail={navigateToDetail} />;
+        return (
+          <PolicyCatalog
+            onOpenMenu={openMobileMenu}
+            onToggleSidebar={toggleDesktopSidebar}
+            onNavigateToDetail={navigateToDetail}
+            onBuyPolicy={quickBuyPolicy}
+          />
+        );
     }
   };
 
   return (
     <div className="relative w-full min-h-screen">
+      {/* Splash Screen */}
       {appState === 'splash' && (
         <SplashScreen onComplete={() => setAppState('catalog')} />
       )}
 
+      {/* Login Screen */}
       {appState === 'login' && (
         <LoginScreen
           onLogin={handleLogin}
@@ -227,6 +435,7 @@ export default function App() {
         />
       )}
 
+      {/* Profile Setup */}
       {appState === 'profile-setup' && (
         <ProfileSetup
           userData={userData}
@@ -235,66 +444,87 @@ export default function App() {
         />
       )}
 
-      {appState !== 'splash' && appState !== 'login' && appState !== 'profile-setup' && (
-        <div className="flex h-screen bg-gray-50">
-          <div className="hidden lg:block">
+      {/* Main App */}
+      {appState !== 'splash' &&
+        appState !== 'login' &&
+        appState !== 'profile-setup' && (
+          <div className="flex h-screen bg-gray-50">
+            {/* Desktop Sidebar */}
+            <div className="hidden lg:block">
+              <ProfessionalSidebar
+                isOpen={true}
+                isCollapsed={isDesktopSidebarCollapsed}
+                onClose={() => {}}
+                onToggle={toggleDesktopSidebar}
+                onNavigate={handleNavigate}
+                onLogout={handleLogout}
+                onLogin={() => setAppState('login')}
+                currentScreen={appState}
+                isDesktop={true}
+                isLoggedIn={isLoggedIn}
+                userName={userData.fullName}
+              />
+            </div>
+
+            {/* Main Content Area */}
+            <div className="flex-1 flex flex
+- flex-col overflow-hidden">
+              <ProfessionalHeader
+                userName={isLoggedIn ? userData.fullName : ''}
+                isLoggedIn={isLoggedIn}
+                onOpenMenu={() => setIsMobileSidebarOpen(true)}
+                onLogin={() => setAppState('login')}
+                title={
+                  appState === 'catalog'
+                    ? 'Health Insurance Plans'
+                    : appState === 'policies'
+                    ? isLoggedIn
+                      ? 'My Health Policies'
+                      : 'Health Insurance Plans'
+                    : appState === 'claims'
+                    ? 'Health Claims'
+                    : appState === 'explore'
+                    ? 'Explore Health Plans'
+                    : appState === 'compare'
+                    ? 'Plan Comparison'
+                    : appState === 'profile'
+                    ? 'Health Profile'
+                    : appState === 'glossary'
+                    ? 'Insurance Glossary'
+                    : appState === 'analysis'
+                    ? 'Company Analysis'
+                    : appState === 'policy-detail'
+                    ? 'Policy Details'
+                    : appState === 'branch-locator'
+                    ? 'Branch Locator'
+                    : appState === 'buy-policy'
+                    ? 'Complete Purchase'
+                    : 'Health Insurance Plans'
+                }
+                breadcrumbs={[{ label: 'HealthInsureAI' }]}
+              />
+
+              {/* Content */}
+              <div className="flex-1 overflow-auto">{renderCurrentScreen()}</div>
+            </div>
+
+            {/* Mobile Sidebar */}
             <ProfessionalSidebar
-              isOpen={true}
-              isCollapsed={isDesktopSidebarCollapsed}
-              onClose={() => {}}
-              onToggle={toggleDesktopSidebar}
+              isOpen={isMobileSidebarOpen}
+              onClose={() => setIsMobileSidebarOpen(false)}
               onNavigate={handleNavigate}
               onLogout={handleLogout}
               onLogin={() => setAppState('login')}
               currentScreen={appState}
-              isDesktop={true}
+              isDesktop={false}
               isLoggedIn={isLoggedIn}
               userName={userData.fullName}
             />
+
+            {/* Floating Chat Button */}
+            <FloatingChatButton />
           </div>
-
-          <div className="flex-1 flex flex-col overflow-hidden">
-            <ProfessionalHeader
-              userName={isLoggedIn ? userData.fullName : ''}
-              isLoggedIn={isLoggedIn}
-              onOpenMenu={() => setIsMobileSidebarOpen(true)}
-              onLogin={() => setAppState('login')}
-              title={
-                appState === 'catalog' ? 'Health Insurance Plans' :
-                appState === 'policies' ? (isLoggedIn ? 'My Health Policies' : 'Health Insurance Plans') :
-                appState === 'claims' ? 'Health Claims' :
-                appState === 'explore' ? 'Explore Health Plans' :
-                appState === 'compare' ? 'Plan Comparison' :
-                appState === 'profile' ? 'Health Profile' :
-                appState === 'glossary' ? 'Insurance Glossary' :
-                appState === 'analysis' ? 'Company Analysis' :
-                appState === 'policy-detail' ? 'Policy Details' :
-                appState === 'branch-locator' ? 'Branch Locator' :
-                'Health Insurance Plans'
-              }
-              breadcrumbs={[{ label: 'Ask My Policy' }]}
-            />
-
-            <div className="flex-1 overflow-auto">
-              {renderCurrentScreen()}
-            </div>
-          </div>
-
-          <ProfessionalSidebar
-            isOpen={isMobileSidebarOpen}
-            onClose={() => setIsMobileSidebarOpen(false)}
-            onNavigate={handleNavigate}
-            onLogout={handleLogout}
-            onLogin={() => setAppState('login')}
-            currentScreen={appState}
-            isDesktop={false}
-            isLoggedIn={isLoggedIn}
-            userName={userData.fullName}
-          />
-
-          <FloatingChatButton />
-        </div>
-      )}
+        )}
     </div>
   );
 }

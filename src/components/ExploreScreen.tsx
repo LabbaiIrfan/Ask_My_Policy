@@ -23,6 +23,7 @@ interface ExploreScreenProps {
   onToggleSidebar?: () => void;
   userData?: any;
   onNavigateToDetail?: () => void;
+  onBuyPolicy?: (policy: any) => void;
 }
 
 interface FilterData {
@@ -35,7 +36,7 @@ interface FilterData {
   requiredCoverage: string;
 }
 
-export function ExploreScreen({ onNavigateToDetail }: ExploreScreenProps) {
+export function ExploreScreen({ onNavigateToDetail, onBuyPolicy }: ExploreScreenProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilterWizard, setShowFilterWizard] = useState(false);
   const [filterStep, setFilterStep] = useState(0);
@@ -235,6 +236,9 @@ export function ExploreScreen({ onNavigateToDetail }: ExploreScreenProps) {
   const categories = [
     { id: 'Individual', name: 'Individual Health', icon: '👤', description: 'Coverage for yourself' },
     { id: 'Family', name: 'Family Health', icon: '👨‍👩‍👧‍👦', description: 'Coverage for your family' },
+    { id: 'Senior', name: 'Senior Citizen', icon: '👴', description: 'Specialized for seniors' },
+    { id: 'Critical', name: 'Critical Illness', icon: '❤️‍🩹', description: 'Critical disease coverage' },
+    { id: 'Maternity', name: 'Maternity', icon: '🤱', description: 'Pregnancy & childbirth' }
   ];
 
   const genders = ['Male', 'Female', 'Other'];
@@ -645,15 +649,27 @@ export function ExploreScreen({ onNavigateToDetail }: ExploreScreenProps) {
       </div>
 
       {/* Savings & Action */}
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-green-600 font-medium">{policy.savings}</span>
-        <Button 
-          size="sm" 
-          className="bg-primary hover:bg-primary/90"
-          onClick={onNavigateToDetail}
-        >
-          View Details
-        </Button>
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-green-600 font-medium">{policy.savings}</span>
+        </div>
+        <div className="flex gap-2">
+          <Button 
+            size="sm" 
+            variant="outline"
+            className="flex-1"
+            onClick={onNavigateToDetail}
+          >
+            View Details
+          </Button>
+          <Button 
+            size="sm" 
+            className="flex-1 bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90"
+            onClick={() => onBuyPolicy && onBuyPolicy(policy)}
+          >
+            Buy Now
+          </Button>
+        </div>
       </div>
     </motion.div>
   );

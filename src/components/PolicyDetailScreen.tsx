@@ -22,6 +22,7 @@ interface PolicyDetailScreenProps {
   onOpenMenu: () => void;
   onToggleSidebar: () => void;
   onBack?: () => void;
+  onBuyPolicy?: (policyData: any, selectedAddOns: string[], selectedRiders: string[]) => void;
 }
 
 const policyData = {
@@ -142,7 +143,7 @@ const riders = [
 const testimonials = [
   {
     id: 1,
-    name: 'Sana Shaikh',
+    name: 'Priya Sharma',
     age: 34,
     city: 'Mumbai',
     rating: 5,
@@ -155,7 +156,7 @@ const testimonials = [
   },
   {
     id: 2,
-    name: 'Amrut pathankar',
+    name: 'Rajesh Kumar',
     age: 42,
     city: 'Delhi',
     rating: 5,
@@ -168,7 +169,7 @@ const testimonials = [
   },
   {
     id: 3,
-    name: 'labbai Irfan',
+    name: 'Meera Patel',
     age: 29,
     city: 'Bangalore',
     rating: 4,
@@ -181,7 +182,7 @@ const testimonials = [
   },
   {
     id: 4,
-    name: 'Zakir Shaikh',
+    name: 'Amit Singh',
     age: 38,
     city: 'Pune',
     rating: 5,
@@ -194,7 +195,7 @@ const testimonials = [
   },
   {
     id: 5,
-    name: 'Talha Shaikh',
+    name: 'Sneha Reddy',
     age: 31,
     city: 'Hyderabad',
     rating: 4,
@@ -207,7 +208,7 @@ const testimonials = [
   }
 ];
 
-export function PolicyDetailScreen({ onOpenMenu, onBack }: PolicyDetailScreenProps) {
+export function PolicyDetailScreen({ onOpenMenu, onBack, onBuyPolicy }: PolicyDetailScreenProps) {
   const [activeAddOnTab, setActiveAddOnTab] = useState('topup');
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
   const [selectedRiders, setSelectedRiders] = useState<string[]>([]);
@@ -229,6 +230,12 @@ export function PolicyDetailScreen({ onOpenMenu, onBack }: PolicyDetailScreenPro
   };
 
   const currentAddOns = addOns[activeAddOnTab as keyof typeof addOns] || [];
+
+  const handleBuyNow = () => {
+    if (onBuyPolicy) {
+      onBuyPolicy(policyData, selectedAddOns, selectedRiders);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -327,7 +334,10 @@ export function PolicyDetailScreen({ onOpenMenu, onBack }: PolicyDetailScreenPro
                   </div>
                 </div>
 
-                <button className="w-full bg-gradient-orange text-white py-3 lg:py-4 px-6 rounded-xl font-semibold hover:shadow-premium transition-all duration-300 mb-4">
+                <button 
+                  onClick={handleBuyNow}
+                  className="w-full bg-gradient-orange text-white py-3 lg:py-4 px-6 rounded-xl font-semibold hover:shadow-premium transition-all duration-300 mb-4"
+                >
                   Buy Now
                 </button>
 

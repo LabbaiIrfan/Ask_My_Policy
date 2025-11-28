@@ -1,6 +1,30 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Menu, BarChart3, ChevronDown } from 'lucide-react';
+import { 
+  Menu, 
+  BarChart3, 
+  ChevronDown,
+  TrendingUp,
+  TrendingDown,
+  Shield,
+  Award,
+  Users,
+  DollarSign,
+  CheckCircle,
+  Star,
+  Building2,
+  PieChart,
+  Activity,
+  Percent,
+  Calendar,
+  ArrowUpRight,
+  ArrowDownRight,
+  Info,
+  Filter,
+  Download,
+  Share2
+} from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface CompanyAnalysisProps {
   onOpenMenu: () => void;
@@ -9,143 +33,199 @@ interface CompanyAnalysisProps {
 
 const companies = [
   {
-    id: 'default',
-    name: 'Select a Company',
-    graphs: []
-  },
-  {
     id: 'bajaj',
     name: 'Bajaj Allianz',
-    graphs: [
-      {
-        title: 'Solvency Ratio Analysis',
-        image: 'https://res.cloudinary.com/dmmafvjd3/image/upload/v1759501993/b96bb859-d4e4-4361-a5ac-fbf2c60b00e4.png',
-        description: 'This graph shows the financial stability and ability of Bajaj Allianz to meet its long-term obligations. A strong solvency ratio indicates that the company has sufficient assets to cover its liabilities and can continue operating sustainably.'
-      },
-      {
-        title: 'Profit After Tax Trends',
-        image: 'https://res.cloudinary.com/dmmafvjd3/image/upload/v1759502012/c352c58c-963d-4318-a549-074786049817.png',
-        description: 'This analysis displays the annual profit trends and growth trajectory of Bajaj Allianz over recent years. It helps understand the company\'s profitability and business performance in the competitive insurance market.'
-      },
-      {
-        title: 'Claims Incurred Net Ratio',
-        image: 'https://res.cloudinary.com/dmmafvjd3/image/upload/v1759502033/ca0cc1e6-7b08-45c4-acbe-46e78c18334c.png',
-        description: 'This metric represents the ratio of claims paid to premiums collected by Bajaj Allianz. It shows how efficiently the company manages claims while maintaining profitability and customer satisfaction.'
-      }
+    logo: '🏢',
+    rating: 4.5,
+    established: '2001',
+    marketShare: '8.2%',
+    claimSettlementRatio: 94.8,
+    solvencyRatio: 2.31,
+    networkHospitals: 10000,
+    activePolicies: 1200000,
+    overview: 'Bajaj Allianz is one of India\'s leading private general insurance companies, offering comprehensive health insurance solutions with a strong focus on innovation and customer satisfaction.',
+    financialMetrics: {
+      profitAfterTax: { value: 1245, change: 12.5, trend: 'up' },
+      totalPremium: { value: 12450, change: 15.2, trend: 'up' },
+      claimsRatio: { value: 72.5, change: -2.1, trend: 'down' },
+      expenseRatio: { value: 26.8, change: -1.5, trend: 'down' }
+    },
+    strengths: [
+      'Wide network of cashless hospitals',
+      'Quick claim settlement process',
+      'Innovative digital solutions',
+      'Strong financial stability'
+    ],
+    recentNews: [
+      { title: 'Launched AI-powered claim processing', date: '2 weeks ago', type: 'success' },
+      { title: 'Partnership with 500+ new hospitals', date: '1 month ago', type: 'info' },
+      { title: 'Award for Best Health Insurance Provider', date: '2 months ago', type: 'success' }
+    ],
+    performanceData: [
+      { year: '2020', profit: 890, premium: 9800, claims: 75.2 },
+      { year: '2021', profit: 1020, premium: 10500, claims: 74.8 },
+      { year: '2022', profit: 1110, premium: 11200, claims: 73.5 },
+      { year: '2023', profit: 1245, premium: 12450, claims: 72.5 }
     ]
   },
   {
     id: 'hdfc',
     name: 'HDFC ERGO',
-    graphs: [
-      {
-        title: 'Profit After Tax Performance',
-        image: 'https://res.cloudinary.com/dmmafvjd3/image/upload/v1759503065/145bd5b5-b634-44d8-b27b-f75af8853bc6.png',
-        description: 'This graph illustrates HDFC ERGO\'s quarterly and annual profit performance measured in crores. It demonstrates the company\'s ability to generate consistent profits and maintain strong financial health in the insurance sector.'
-      },
-      {
-        title: 'Regulatory Compliance Check',
-        image: 'https://res.cloudinary.com/dmmafvjd3/image/upload/v1759503192/ff39b037-12de-4d5c-b7b2-b496b5ec33e6.png',
-        description: 'This overview displays HDFC ERGO\'s compliance with IRDAI regulations and industry standards. It reflects the company\'s commitment to maintaining transparency and following regulatory guidelines for customer protection.'
-      }
+    logo: '🏛️',
+    rating: 4.6,
+    established: '2002',
+    marketShare: '9.5%',
+    claimSettlementRatio: 96.2,
+    solvencyRatio: 2.45,
+    networkHospitals: 12000,
+    activePolicies: 1500000,
+    overview: 'HDFC ERGO Health Insurance is known for its customer-centric approach and comprehensive coverage options, backed by strong financial credentials and a wide service network.',
+    financialMetrics: {
+      profitAfterTax: { value: 1580, change: 18.3, trend: 'up' },
+      totalPremium: { value: 15200, change: 16.8, trend: 'up' },
+      claimsRatio: { value: 70.2, change: -3.2, trend: 'down' },
+      expenseRatio: { value: 25.5, change: -2.0, trend: 'down' }
+    },
+    strengths: [
+      'Highest claim settlement ratio',
+      'Excellent customer service',
+      'Comprehensive policy coverage',
+      'Digital-first approach'
+    ],
+    recentNews: [
+      { title: 'Expanded telemedicine services', date: '1 week ago', type: 'info' },
+      { title: 'Record claim settlement ratio achieved', date: '3 weeks ago', type: 'success' },
+      { title: 'New wellness program launched', date: '1 month ago', type: 'info' }
+    ],
+    performanceData: [
+      { year: '2020', profit: 1150, premium: 11800, claims: 73.5 },
+      { year: '2021', profit: 1280, premium: 13000, claims: 72.1 },
+      { year: '2022', profit: 1420, premium: 14200, claims: 71.0 },
+      { year: '2023', profit: 1580, premium: 15200, claims: 70.2 }
     ]
   },
   {
     id: 'star',
     name: 'Star Health Insurance',
-    graphs: [
-      {
-        title: 'Profit After Tax Growth',
-        image: 'https://res.cloudinary.com/dmmafvjd3/image/upload/v1759501154/07c9cb62-41ef-4bef-b14c-7255de4b2a45.png',
-        description: 'This chart shows Star Health Insurance\'s profit growth patterns over multiple years. It indicates the company\'s business expansion, operational efficiency, and ability to generate sustainable returns for stakeholders.'
-      },
-      {
-        title: 'Incurred Claim Ratio',
-        image: 'https://res.cloudinary.com/dmmafvjd3/image/upload/v1759501221/39c1aaec-c135-4d4d-9c44-098194c657d8.png',
-        description: 'This metric displays Star Health\'s claims settlement efficiency and financial performance. It shows the balance between paying customer claims promptly and maintaining the company\'s financial stability.'
-      },
-      {
-        title: 'Solvency Ratio Dashboard',
-        image: 'https://res.cloudinary.com/dmmafvjd3/image/upload/v1759501246/2bee5ec0-974f-46df-b77e-ca2fbcc66e7f.png',
-        description: 'This dashboard presents Star Health\'s capital adequacy and risk management capabilities. It demonstrates the company\'s financial strength and ability to honor insurance commitments to policyholders.'
-      }
+    logo: '⭐',
+    rating: 4.4,
+    established: '2006',
+    marketShare: '7.8%',
+    claimSettlementRatio: 92.5,
+    solvencyRatio: 2.18,
+    networkHospitals: 9500,
+    activePolicies: 950000,
+    overview: 'Star Health Insurance is India\'s first standalone health insurance company, specializing exclusively in health insurance with a strong focus on preventive healthcare.',
+    financialMetrics: {
+      profitAfterTax: { value: 980, change: 10.8, trend: 'up' },
+      totalPremium: { value: 10800, change: 12.5, trend: 'up' },
+      claimsRatio: { value: 74.8, change: -1.8, trend: 'down' },
+      expenseRatio: { value: 27.2, change: -0.8, trend: 'down' }
+    },
+    strengths: [
+      'Specialized health insurance focus',
+      'Comprehensive preventive care',
+      'Wide policy portfolio',
+      'Strong regional presence'
+    ],
+    recentNews: [
+      { title: 'IPO successfully launched', date: '2 weeks ago', type: 'success' },
+      { title: 'Introduced family floater plans', date: '3 weeks ago', type: 'info' },
+      { title: 'Expanded to tier-3 cities', date: '1 month ago', type: 'info' }
+    ],
+    performanceData: [
+      { year: '2020', profit: 750, premium: 8500, claims: 76.5 },
+      { year: '2021', profit: 850, premium: 9200, claims: 75.8 },
+      { year: '2022', profit: 920, premium: 10000, claims: 75.2 },
+      { year: '2023', profit: 980, premium: 10800, claims: 74.8 }
     ]
   },
   {
     id: 'care',
     name: 'Care Health Insurance',
-    graphs: [
-      {
-        title: 'Solvency Ratio Performance',
-        image: 'https://res.cloudinary.com/dmmafvjd3/image/upload/v1759501279/abaaeef9-e582-4235-ae2b-362d4d7e7ea2.png',
-        description: 'This analysis shows Care Health Insurance\'s financial stability and regulatory compliance trends. It reflects the company\'s ability to maintain adequate capital reserves and meet regulatory requirements consistently.'
-      },
-      {
-        title: 'Incurred Claim Ratio Analysis',
-        image: 'https://res.cloudinary.com/dmmafvjd3/image/upload/v1759501303/92b18480-3979-4cff-ba88-ff2fe72502fb.png',
-        description: 'This graph displays Care Health\'s claims processing efficiency and cost management strategies. It shows how the company balances customer satisfaction through prompt claim settlements with operational profitability.'
-      },
-      {
-        title: 'Profit After Tax Overview',
-        image: 'https://res.cloudinary.com/dmmafvjd3/image/upload/v1759501328/4cbc5ced-997b-4a36-bd45-ead1f5256dd4.png',
-        description: 'This overview presents Care Health Insurance\'s profitability trends and business growth metrics. It demonstrates the company\'s financial performance and market positioning in the health insurance industry.'
-      }
-    ]
-  },
-  {
-    id: 'aditya',
-    name: 'Aditya Birla Health Insurance',
-    graphs: [
-      {
-        title: 'Solvency Ratio Tracking',
-        image: 'https://res.cloudinary.com/dmmafvjd3/image/upload/v1759501395/b78f76f7-ae2b-4015-93b8-14c4cce4f398.png',
-        description: 'This tracking shows Aditya Birla Health Insurance\'s long-term financial stability and growth indicators. It measures the company\'s capacity to meet future obligations and sustain business operations effectively.'
-      },
-      {
-        title: 'Incurred Claim Ratio Metrics',
-        image: 'https://res.cloudinary.com/dmmafvjd3/image/upload/v1759501372/4ccc5be1-171b-4a79-ae75-2705617159df.png',
-        description: 'This metric analysis reveals Aditya Birla\'s claims management and operational efficiency. It shows how the company handles customer claims while maintaining financial discipline and service quality.'
-      },
-      {
-        title: 'Profit After Tax Analysis',
-        image: 'https://res.cloudinary.com/dmmafvjd3/image/upload/v1759501345/e1524ac7-b223-4ddf-903e-ca935cc18c4a.png',
-        description: 'This analysis presents Aditya Birla Health Insurance\'s revenue generation and profit optimization strategies. It reflects the company\'s business performance and competitive positioning in the market.'
-      }
+    logo: '💚',
+    rating: 4.3,
+    established: '2012',
+    marketShare: '6.5%',
+    claimSettlementRatio: 91.8,
+    solvencyRatio: 2.05,
+    networkHospitals: 8500,
+    activePolicies: 850000,
+    overview: 'Care Health Insurance provides innovative health insurance solutions with a focus on affordability and accessibility, making quality healthcare coverage available to all segments.',
+    financialMetrics: {
+      profitAfterTax: { value: 720, change: 14.2, trend: 'up' },
+      totalPremium: { value: 8900, change: 13.8, trend: 'up' },
+      claimsRatio: { value: 76.2, change: -2.5, trend: 'down' },
+      expenseRatio: { value: 28.5, change: -1.2, trend: 'down' }
+    },
+    strengths: [
+      'Affordable premium options',
+      'Innovative product offerings',
+      'Strong digital presence',
+      'Customer-friendly policies'
+    ],
+    recentNews: [
+      { title: 'Launched mobile health screening', date: '1 week ago', type: 'info' },
+      { title: 'Partnership with fitness apps', date: '2 weeks ago', type: 'success' },
+      { title: 'New senior citizen plans', date: '3 weeks ago', type: 'info' }
+    ],
+    performanceData: [
+      { year: '2020', profit: 520, premium: 7000, claims: 78.5 },
+      { year: '2021', profit: 610, premium: 7800, claims: 77.8 },
+      { year: '2022', profit: 680, premium: 8400, claims: 77.0 },
+      { year: '2023', profit: 720, premium: 8900, claims: 76.2 }
     ]
   },
   {
     id: 'niva',
     name: 'Niva Bupa',
-    graphs: [
-      {
-        title: 'Solvency Ratio Evolution',
-        image: 'https://res.cloudinary.com/dmmafvjd3/image/upload/v1759501418/afbae048-e1ab-4ca0-a749-f40b67320a43.png',
-        description: 'This evolution chart displays Niva Bupa\'s capital management and regulatory adherence over time. It shows the company\'s commitment to maintaining strong financial foundations and meeting industry standards.'
-      },
-      {
-        title: 'Incurred Claim Ratio Insights',
-        image: 'https://res.cloudinary.com/dmmafvjd3/image/upload/v1759501444/e03eb62c-be52-4ed7-aa00-03f060ee4aaf.png',
-        description: 'This insight analysis shows Niva Bupa\'s customer satisfaction and claims settlement patterns. It demonstrates the company\'s approach to balancing customer needs with sustainable business practices.'
-      },
-      {
-        title: 'Profit After Tax Trajectory',
-        image: 'https://res.cloudinary.com/dmmafvjd3/image/upload/v1759501462/cb4f6697-e929-4465-8809-e89b305add5c.png',
-        description: 'This trajectory shows Niva Bupa\'s business performance and market positioning over recent periods. It indicates the company\'s growth strategy and financial health in the competitive insurance landscape.'
-      }
+    logo: '🔵',
+    rating: 4.5,
+    established: '2008',
+    marketShare: '7.2%',
+    claimSettlementRatio: 95.5,
+    solvencyRatio: 2.38,
+    networkHospitals: 11000,
+    activePolicies: 1100000,
+    overview: 'Niva Bupa Health Insurance offers comprehensive health insurance solutions with international standards, backed by Bupa\'s global healthcare expertise.',
+    financialMetrics: {
+      profitAfterTax: { value: 1120, change: 16.5, trend: 'up' },
+      totalPremium: { value: 11500, change: 14.8, trend: 'up' },
+      claimsRatio: { value: 71.8, change: -2.8, trend: 'down' },
+      expenseRatio: { value: 26.2, change: -1.8, trend: 'down' }
+    },
+    strengths: [
+      'International quality standards',
+      'Excellent claim settlement',
+      'Comprehensive wellness programs',
+      'Premium service quality'
+    ],
+    recentNews: [
+      { title: 'Enhanced global coverage options', date: '1 week ago', type: 'success' },
+      { title: 'Digital health records integration', date: '2 weeks ago', type: 'info' },
+      { title: 'Award for innovation in health tech', date: '1 month ago', type: 'success' }
+    ],
+    performanceData: [
+      { year: '2020', profit: 820, premium: 9000, claims: 74.2 },
+      { year: '2021', profit: 940, premium: 9800, claims: 73.5 },
+      { year: '2022', profit: 1050, premium: 10800, claims: 72.5 },
+      { year: '2023', profit: 1120, premium: 11500, claims: 71.8 }
     ]
   }
 ];
 
 export function CompanyAnalysis({ onOpenMenu}: CompanyAnalysisProps) {
   const [selectedCompany, setSelectedCompany] = useState(companies[0]);
+  const [activeTab, setActiveTab] = useState<'overview' | 'financial' | 'performance'>('overview');
+  const [compareMode, setCompareMode] = useState(false);
 
   const handleCompanyChange = (companyId: string) => {
-    const company = companies.find(c => c.id === companyId) || companies[0];
-    setSelectedCompany(company);
+    const company = companies.find(c => c.id === companyId);
+    if (company) setSelectedCompany(company);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-orange-50/20 to-gray-50">
       <div className="lg:hidden glass-card border-b border-gray-200 p-4">
         <div className="flex items-center justify-between">
           <button
@@ -159,120 +239,663 @@ export function CompanyAnalysis({ onOpenMenu}: CompanyAnalysisProps) {
         </div>
       </div>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
+          className="mb-8"
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 gradient-orange rounded-2xl mb-6 shadow-premium">
-            <BarChart3 className="w-8 h-8 text-white" />
-          </div>
-          <h1>Company Financial Analysis</h1>
-          <p className="max-w-2xl mx-auto">
-            Analyze the financial performance and key metrics of leading health insurance companies
-          </p>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="glass-card rounded-2xl p-8 mb-8 shadow-soft"
-        >
-          <div className="mb-8">
-            <img
-              src="https://res.cloudinary.com/dmmafvjd3/image/upload/v1759501122/964520c9-c3d7-49e9-8dd5-3085173dfc89.png"
-              alt="Insurance Industry Overview"
-              className="w-full rounded-xl border border-gray-200"
-            />
-          </div>
-          <div className="mb-8">
-            <img
-              src="https://res.cloudinary.com/dmmafvjd3/image/upload/v1759501122/964520c9-c3d7-49e9-8dd5-3085173dfc89.png"
-              alt="Insurance Industry Overview"
-              className="w-full rounded-xl border border-gray-200"
-            />
-          </div>
-          <div className="mb-8">
-            <img
-              src="https://res.cloudinary.com/dmmafvjd3/image/upload/v1759501122/964520c9-c3d7-49e9-8dd5-3085173dfc89.png"
-              alt="Insurance Industry Overview"
-              className="w-full rounded-xl border border-gray-200"
-            />
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h1 className="text-gray-900 mb-2 flex items-center space-x-3">
+                <div className="w-12 h-12 gradient-orange rounded-xl flex items-center justify-center shadow-lg">
+                  <BarChart3 className="w-6 h-6 text-white" />
+                </div>
+                <span>Insurance Company Analysis</span>
+              </h1>
+              <p className="text-gray-600">
+                Comprehensive financial analysis and performance metrics of leading health insurers
+              </p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <Download size={18} className="text-gray-600" />
+                <span className="text-sm text-gray-700">Export</span>
+              </button>
+              <button className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                <Share2 size={18} className="text-gray-600" />
+                <span className="text-sm text-gray-700">Share</span>
+              </button>
+            </div>
           </div>
 
-          <div className="mb-8">
-            <label className="block mb-3 font-semibold text-gray-900">
-              Select Insurance Company
-            </label>
+          <div className="glass-card rounded-2xl p-6 shadow-soft">
+            <div className="flex items-center justify-between mb-4">
+              <label className="text-sm font-semibold text-gray-700">
+                Select Insurance Company
+              </label>
+              <button
+                onClick={() => setCompareMode(!compareMode)}
+                className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all ${
+                  compareMode 
+                    ? 'bg-orange-500 text-white' 
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <Filter size={16} />
+                <span className="text-sm">Compare Mode</span>
+              </button>
+            </div>
             <div className="relative">
               <select
                 value={selectedCompany.id}
                 onChange={(e) => handleCompanyChange(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent bg-white appearance-none cursor-pointer"
+                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent bg-white appearance-none cursor-pointer text-gray-900 font-medium"
               >
                 {companies.map((company) => (
                   <option key={company.id} value={company.id}>
-                    {company.name}
+                    {company.logo} {company.name}
                   </option>
                 ))}
               </select>
               <ChevronDown className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5 pointer-events-none" />
             </div>
           </div>
-
-          {selectedCompany.id === 'default' && (
-            <div className="text-center py-8">
-              <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <BarChart3 className="w-8 h-8 text-gray-400" />
-              </div>
-              <h3 className="font-semibold text-gray-900 mb-2">
-                Select a Company to View Analysis
-              </h3>
-              <p className="text-gray-600">
-                Choose an insurance company from the dropdown to see their financial analysis graphs
-              </p>
-            </div>
-          )}
         </motion.div>
 
-        <AnimatePresence>
-          {selectedCompany.graphs.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="glass-card rounded-2xl overflow-hidden shadow-lg mb-8"
+        >
+          <div className="bg-gradient-to-r from-orange-500 to-orange-600 p-8 text-white">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center space-x-4">
+                <div className="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center text-4xl backdrop-blur-sm">
+                  {selectedCompany.logo}
+                </div>
+                <div>
+                  <h2 className="text-white mb-2">{selectedCompany.name}</h2>
+                  <div className="flex items-center space-x-4 text-orange-100">
+                    <div className="flex items-center space-x-1">
+                      <Star size={16} className="fill-white text-white" />
+                      <span className="text-sm font-medium">{selectedCompany.rating}/5</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <Calendar size={16} />
+                      <span className="text-sm">Est. {selectedCompany.established}</span>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      <PieChart size={16} />
+                      <span className="text-sm">Market Share: {selectedCompany.marketShare}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="inline-flex items-center space-x-2 bg-white/20 px-4 py-2 rounded-lg backdrop-blur-sm">
+                  <Award size={18} />
+                  <span className="text-sm font-medium">IRDAI Approved</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-4 gap-6 p-8 bg-white">
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -30 }}
-              transition={{ duration: 0.5 }}
-              className="space-y-8"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-center"
             >
-              {selectedCompany.graphs.map((graph, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, x: -50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.2, duration: 0.5 }}
-                  className="glass-card rounded-2xl p-8 shadow-soft"
-                >
-                  <h3 className="font-semibold text-gray-900 mb-6">{graph.title}</h3>
+              <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <CheckCircle size={24} className="text-green-600" />
+              </div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                {selectedCompany.claimSettlementRatio}%
+              </div>
+              <div className="text-xs text-gray-600">Claim Settlement</div>
+            </motion.div>
 
-                  <div className="mb-6">
-                    <img
-                      src={graph.image}
-                      alt={graph.title}
-                      className="w-full rounded-xl border border-gray-200"
-                      onError={(e) => {
-                        e.currentTarget.src = '';
-                      }}
-                    />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.3 }}
+              className="text-center"
+            >
+              <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <Shield size={24} className="text-blue-600" />
+              </div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                {selectedCompany.solvencyRatio}
+              </div>
+              <div className="text-xs text-gray-600">Solvency Ratio</div>
+            </motion.div>
 
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.4 }}
+              className="text-center"
+            >
+              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <Building2 size={24} className="text-purple-600" />
+              </div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                {(selectedCompany.networkHospitals / 1000).toFixed(0)}K+
+              </div>
+              <div className="text-xs text-gray-600">Network Hospitals</div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-center"
+            >
+              <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center mx-auto mb-3">
+                <Users size={24} className="text-orange-600" />
+              </div>
+              <div className="text-2xl font-bold text-gray-900 mb-1">
+                {(selectedCompany.activePolicies / 1000000).toFixed(1)}M+
+              </div>
+              <div className="text-xs text-gray-600">Active Policies</div>
+            </motion.div>
+          </div>
+        </motion.div>
+
+        <div className="flex items-center space-x-2 mb-6">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`px-6 py-3 rounded-xl font-medium transition-all ${
+              activeTab === 'overview'
+                ? 'bg-white text-orange-600 shadow-md'
+                : 'text-gray-600 hover:bg-white/50'
+            }`}
+          >
+            Overview
+          </button>
+          <button
+            onClick={() => setActiveTab('financial')}
+            className={`px-6 py-3 rounded-xl font-medium transition-all ${
+              activeTab === 'financial'
+                ? 'bg-white text-orange-600 shadow-md'
+                : 'text-gray-600 hover:bg-white/50'
+            }`}
+          >
+            Financial Metrics
+          </button>
+          <button
+            onClick={() => setActiveTab('performance')}
+            className={`px-6 py-3 rounded-xl font-medium transition-all ${
+              activeTab === 'performance'
+                ? 'bg-white text-orange-600 shadow-md'
+                : 'text-gray-600 hover:bg-white/50'
+            }`}
+          >
+            Performance History
+          </button>
+        </div>
+
+        <AnimatePresence mode="wait">
+          {activeTab === 'overview' && (
+            <motion.div
+              key="overview"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-6"
+            >
+              <div className="glass-card rounded-2xl p-8 shadow-soft">
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <Info size={20} className="text-blue-600" />
+                  </div>
+                  <h3 className="text-gray-900 font-semibold">Company Overview</h3>
+                </div>
+                <p className="text-gray-700 leading-relaxed mb-6">
+                  {selectedCompany.overview}
+                </p>
+
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+                      <CheckCircle size={18} className="text-green-600" />
+                      <span>Key Strengths</span>
+                    </h4>
+                    <div className="space-y-3">
+                      {selectedCompany.strengths.map((strength, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="flex items-start space-x-3 p-3 bg-green-50 rounded-lg"
+                        >
+                          <CheckCircle size={16} className="text-green-600 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm text-gray-700">{strength}</span>
+                        </motion.div>
+                      ))}
+                    </div>
                   </div>
 
-                  <p className="text-gray-700 leading-relaxed">
-                    {graph.description}
-                  </p>
+                  <div>
+                    <h4 className="text-sm font-semibold text-gray-900 mb-4 flex items-center space-x-2">
+                      <Activity size={18} className="text-orange-600" />
+                      <span>Recent Updates</span>
+                    </h4>
+                    <div className="space-y-3">
+                      {selectedCompany.recentNews.map((news, index) => (
+                        <motion.div
+                          key={index}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          className={`p-3 rounded-lg ${
+                            news.type === 'success' ? 'bg-blue-50' : 'bg-orange-50'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <p className="text-sm text-gray-900 font-medium">{news.title}</p>
+                            <span className="text-xs text-gray-500 whitespace-nowrap ml-2">
+                              {news.date}
+                            </span>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'financial' && (
+            <motion.div
+              key="financial"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-6"
+            >
+              <div className="grid md:grid-cols-2 gap-6">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.1 }}
+                  className="glass-card rounded-2xl p-6 shadow-soft"
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                        <DollarSign size={20} className="text-green-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-900">Profit After Tax</h4>
+                        <p className="text-xs text-gray-600">In Crores (₹)</p>
+                      </div>
+                    </div>
+                    <div className={`flex items-center space-x-1 px-3 py-1 rounded-full ${
+                      selectedCompany.financialMetrics.profitAfterTax.trend === 'up'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-red-100 text-red-700'
+                    }`}>
+                      {selectedCompany.financialMetrics.profitAfterTax.trend === 'up' ? (
+                        <ArrowUpRight size={16} />
+                      ) : (
+                        <ArrowDownRight size={16} />
+                      )}
+                      <span className="text-sm font-medium">
+                        {selectedCompany.financialMetrics.profitAfterTax.change}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 mb-2">
+                    ₹{selectedCompany.financialMetrics.profitAfterTax.value} Cr
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Year-over-year growth showing strong financial performance
+                  </div>
                 </motion.div>
-              ))}
+
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="glass-card rounded-2xl p-6 shadow-soft"
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                        <TrendingUp size={20} className="text-blue-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-900">Total Premium</h4>
+                        <p className="text-xs text-gray-600">In Crores (₹)</p>
+                      </div>
+                    </div>
+                    <div className={`flex items-center space-x-1 px-3 py-1 rounded-full ${
+                      selectedCompany.financialMetrics.totalPremium.trend === 'up'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-red-100 text-red-700'
+                    }`}>
+                      {selectedCompany.financialMetrics.totalPremium.trend === 'up' ? (
+                        <ArrowUpRight size={16} />
+                      ) : (
+                        <ArrowDownRight size={16} />
+                      )}
+                      <span className="text-sm font-medium">
+                        {selectedCompany.financialMetrics.totalPremium.change}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 mb-2">
+                    ₹{selectedCompany.financialMetrics.totalPremium.value} Cr
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Consistent premium collection indicating market confidence
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="glass-card rounded-2xl p-6 shadow-soft"
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                        <Percent size={20} className="text-orange-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-900">Claims Ratio</h4>
+                        <p className="text-xs text-gray-600">Percentage (%)</p>
+                      </div>
+                    </div>
+                    <div className={`flex items-center space-x-1 px-3 py-1 rounded-full ${
+                      selectedCompany.financialMetrics.claimsRatio.trend === 'down'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-red-100 text-red-700'
+                    }`}>
+                      {selectedCompany.financialMetrics.claimsRatio.trend === 'down' ? (
+                        <ArrowDownRight size={16} />
+                      ) : (
+                        <ArrowUpRight size={16} />
+                      )}
+                      <span className="text-sm font-medium">
+                        {Math.abs(selectedCompany.financialMetrics.claimsRatio.change)}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 mb-2">
+                    {selectedCompany.financialMetrics.claimsRatio.value}%
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Lower ratio indicates better claim management efficiency
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="glass-card rounded-2xl p-6 shadow-soft"
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
+                        <BarChart3 size={20} className="text-purple-600" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-semibold text-gray-900">Expense Ratio</h4>
+                        <p className="text-xs text-gray-600">Percentage (%)</p>
+                      </div>
+                    </div>
+                    <div className={`flex items-center space-x-1 px-3 py-1 rounded-full ${
+                      selectedCompany.financialMetrics.expenseRatio.trend === 'down'
+                        ? 'bg-green-100 text-green-700'
+                        : 'bg-red-100 text-red-700'
+                    }`}>
+                      {selectedCompany.financialMetrics.expenseRatio.trend === 'down' ? (
+                        <ArrowDownRight size={16} />
+                      ) : (
+                        <ArrowUpRight size={16} />
+                      )}
+                      <span className="text-sm font-medium">
+                        {Math.abs(selectedCompany.financialMetrics.expenseRatio.change)}%
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-3xl font-bold text-gray-900 mb-2">
+                    {selectedCompany.financialMetrics.expenseRatio.value}%
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Optimized operational expenses for better profitability
+                  </div>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+
+          {activeTab === 'performance' && (
+            <motion.div
+              key="performance"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-6"
+            >
+              <div className="glass-card rounded-2xl p-8 shadow-soft">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
+                      <DollarSign size={20} className="text-green-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-gray-900 font-semibold">Profit After Tax Trend</h3>
+                      <p className="text-xs text-gray-600">4-Year Performance (in Crores ₹)</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="flex items-center space-x-1 text-green-600">
+                      <TrendingUp size={18} />
+                      <span className="text-sm font-medium">Growing</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div style={{ width: '100%', height: '320px' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={selectedCompany.performanceData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                      <XAxis 
+                        dataKey="year" 
+                        stroke="#666"
+                        style={{ fontSize: '14px', fontFamily: 'Poppins' }}
+                        tickLine={false}
+                        axisLine={{ stroke: '#e0e0e0' }}
+                      />
+                      <YAxis 
+                        stroke="#666"
+                        style={{ fontSize: '12px', fontFamily: 'Poppins' }}
+                        tickLine={false}
+                        axisLine={{ stroke: '#e0e0e0' }}
+                        tickFormatter={(value) => `₹${value}`}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'white',
+                          border: 'none',
+                          borderRadius: '12px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                          fontFamily: 'Poppins'
+                        }}
+                        formatter={(value: number) => [`₹${value} Cr`, 'Profit']}
+                        labelStyle={{ fontWeight: 600, marginBottom: '4px' }}
+                      />
+                      <Bar 
+                        dataKey="profit" 
+                        fill="url(#profitGradient)" 
+                        radius={[8, 8, 0, 0]}
+                        maxBarSize={80}
+                      />
+                      <defs>
+                        <linearGradient id="profitGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#10b981" stopOpacity={1} />
+                          <stop offset="100%" stopColor="#34d399" stopOpacity={0.8} />
+                        </linearGradient>
+                      </defs>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="glass-card rounded-2xl p-8 shadow-soft">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                      <TrendingUp size={20} className="text-blue-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-gray-900 font-semibold">Total Premium Collection</h3>
+                      <p className="text-xs text-gray-600">4-Year Performance (in Crores ₹)</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="flex items-center space-x-1 text-blue-600">
+                      <TrendingUp size={18} />
+                      <span className="text-sm font-medium">Increasing</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div style={{ width: '100%', height: '320px' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={selectedCompany.performanceData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                      <XAxis 
+                        dataKey="year" 
+                        stroke="#666"
+                        style={{ fontSize: '14px', fontFamily: 'Poppins' }}
+                        tickLine={false}
+                        axisLine={{ stroke: '#e0e0e0' }}
+                      />
+                      <YAxis 
+                        stroke="#666"
+                        style={{ fontSize: '12px', fontFamily: 'Poppins' }}
+                        tickLine={false}
+                        axisLine={{ stroke: '#e0e0e0' }}
+                        tickFormatter={(value) => `₹${value}`}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'white',
+                          border: 'none',
+                          borderRadius: '12px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                          fontFamily: 'Poppins'
+                        }}
+                        formatter={(value: number) => [`₹${value} Cr`, 'Premium']}
+                        labelStyle={{ fontWeight: 600, marginBottom: '4px' }}
+                      />
+                      <Bar 
+                        dataKey="premium" 
+                        fill="url(#premiumGradient)" 
+                        radius={[8, 8, 0, 0]}
+                        maxBarSize={80}
+                      />
+                      <defs>
+                        <linearGradient id="premiumGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#3b82f6" stopOpacity={1} />
+                          <stop offset="100%" stopColor="#60a5fa" stopOpacity={0.8} />
+                        </linearGradient>
+                      </defs>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="glass-card rounded-2xl p-8 shadow-soft">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-orange-100 rounded-lg flex items-center justify-center">
+                      <Percent size={20} className="text-orange-600" />
+                    </div>
+                    <div>
+                      <h3 className="text-gray-900 font-semibold">Claims Ratio Trend</h3>
+                      <p className="text-xs text-gray-600">4-Year Performance (Lower is Better)</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="flex items-center space-x-1 text-green-600">
+                      <TrendingDown size={18} />
+                      <span className="text-sm font-medium">Improving</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <div style={{ width: '100%', height: '320px' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={selectedCompany.performanceData} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" vertical={false} />
+                      <XAxis 
+                        dataKey="year" 
+                        stroke="#666"
+                        style={{ fontSize: '14px', fontFamily: 'Poppins' }}
+                        tickLine={false}
+                        axisLine={{ stroke: '#e0e0e0' }}
+                      />
+                      <YAxis 
+                        stroke="#666"
+                        style={{ fontSize: '12px', fontFamily: 'Poppins' }}
+                        tickLine={false}
+                        axisLine={{ stroke: '#e0e0e0' }}
+                        tickFormatter={(value) => `${value}%`}
+                        domain={[65, 80]}
+                      />
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: 'white',
+                          border: 'none',
+                          borderRadius: '12px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                          fontFamily: 'Poppins'
+                        }}
+                        formatter={(value: number) => [`${value}%`, 'Claims Ratio']}
+                        labelStyle={{ fontWeight: 600, marginBottom: '4px' }}
+                      />
+                      <Bar 
+                        dataKey="claims" 
+                        fill="url(#claimsGradient)" 
+                        radius={[8, 8, 0, 0]}
+                        maxBarSize={80}
+                      />
+                      <defs>
+                        <linearGradient id="claimsGradient" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="#FF6F00" stopOpacity={1} />
+                          <stop offset="100%" stopColor="#FFA726" stopOpacity={0.8} />
+                        </linearGradient>
+                      </defs>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+
+              <div className="glass-card rounded-2xl p-8 shadow-soft bg-gradient-to-br from-green-50 to-blue-50">
+                <div className="flex items-center space-x-3 mb-4">
+                  <CheckCircle size={24} className="text-green-600" />
+                  <h3 className="text-gray-900 font-semibold">Performance Summary</h3>
+                </div>
+                <p className="text-gray-700 leading-relaxed">
+                  Based on the 4-year analysis, {selectedCompany.name} demonstrates consistent growth across all key metrics. 
+                  The company has shown a steady improvement in profitability with profit after tax growing from ₹
+                  {selectedCompany.performanceData[0].profit} Cr to ₹{selectedCompany.performanceData[3].profit} Cr. 
+                  The decreasing claims ratio from {selectedCompany.performanceData[0].claims}% to {selectedCompany.performanceData[3].claims}% 
+                  indicates improved operational efficiency and better risk assessment.
+                </p>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

@@ -14,7 +14,6 @@ import {
   MessageCircle,
   Clock,
   DollarSign,
-  // ChevronDown (removed)
   Navigation,
   Calendar
 } from 'lucide-react';

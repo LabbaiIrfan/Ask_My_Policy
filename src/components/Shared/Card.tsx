@@ -1,5 +1,5 @@
 import { forwardRef } from 'react';
-import { cn } from './ui/utils';
+import { cn } from '../ui/utils';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;

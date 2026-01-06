@@ -218,7 +218,7 @@ export function ExploreScreen({ onBuyPolicy, onComparePolicies }: ExploreScreenP
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
-            className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-2xl z-50 p-4"
+            className="fixed bottom-20 lg:bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-2xl z-50 p-4"
           >
             <div className="max-w-7xl mx-auto flex items-center justify-between">
               <div className="flex items-center gap-4">

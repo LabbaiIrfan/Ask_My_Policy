@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, Mic, MicOff, Bot, Sparkles } from 'lucide-react';
-import { useAuth } from '../utils/supabase/auth';
+import { useAuth } from '../../utils/supabase/auth';
 
 interface ChatMessage {
   id: string;
@@ -66,7 +66,7 @@ export function FloatingChatButton() {
       }
 
       const data = await response.json();
-      
+
       const botMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         text: data.answer || "I'm sorry, I couldn't process that.",
@@ -148,15 +148,15 @@ export function FloatingChatButton() {
           className="relative w-16 h-16 gradient-orange rounded-full shadow-2xl flex items-center justify-center group overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-r from-orange-400 to-orange-600 rounded-full blur animate-pulse opacity-75" />
-          
+
           <div className="relative z-10 flex items-center justify-center">
             <MessageCircle size={28} className="text-white group-hover:scale-110 transition-transform" />
           </div>
-          
+
           <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-white flex items-center justify-center">
             <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
           </div>
-          
+
           <div className="absolute inset-0 rounded-full border-2 border-orange-300 animate-ping opacity-20" />
         </motion.button>
       </motion.div>
@@ -183,7 +183,7 @@ export function FloatingChatButton() {
                 <div className="h-full glass-card shadow-2xl flex flex-col relative overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-b from-white/95 via-white/90 to-orange-50/30" />
                   <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-orange-100/40 to-transparent rounded-full blur-2xl" />
-                  
+
                   <div className="relative z-10 flex items-center justify-between p-6 border-b border-border/30">
                     <div className="flex items-center space-x-4">
                       <div className="relative">
@@ -226,11 +226,10 @@ export function FloatingChatButton() {
                             </div>
                           )}
                           <div
-                            className={`p-4 rounded-2xl shadow-sm relative overflow-hidden ${
-                              message.isBot
+                            className={`p-4 rounded-2xl shadow-sm relative overflow-hidden ${message.isBot
                                 ? 'bg-gradient-to-r from-white to-orange-50/50 text-foreground border border-orange-100/50'
                                 : 'gradient-orange text-white shadow-lg shadow-orange-200/50'
-                            }`}
+                              }`}
                           >
                             {message.isBot && (
                               <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-orange-400 to-orange-600" />
@@ -295,11 +294,10 @@ export function FloatingChatButton() {
                         />
                         <button
                           onClick={toggleVoice}
-                          className={`absolute right-4 top-1/2 transform -translate-y-1/2 p-2 rounded-xl transition-all duration-200 ${
-                            isListening 
-                              ? 'bg-orange-500 text-white animate-pulse shadow-lg' 
+                          className={`absolute right-4 top-1/2 transform -translate-y-1/2 p-2 rounded-xl transition-all duration-200 ${isListening
+                              ? 'bg-orange-500 text-white animate-pulse shadow-lg'
                               : 'text-muted-foreground hover:text-orange-500 hover:bg-orange-50'
-                          }`}
+                            }`}
                         >
                           {isListening ? <MicOff size={18} /> : <Mic size={18} />}
                         </button>
@@ -315,7 +313,7 @@ export function FloatingChatButton() {
                         <Send size={22} className="text-white relative z-10 group-hover:scale-110 transition-transform" />
                       </motion.button>
                     </div>
-                    
+
                     <div className="flex items-center justify-center mt-3 space-x-4 text-xs text-muted-foreground">
                       <div className="flex items-center space-x-1">
                         <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />

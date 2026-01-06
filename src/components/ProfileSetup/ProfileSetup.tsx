@@ -10,7 +10,7 @@ import {
   ChevronLeft,
   Check
 } from 'lucide-react';
-import { ButtonPrimary } from '../ButtonPrimary';
+import { ButtonPrimary } from '../Shared/ButtonPrimary';
 import { Progress } from '../ui/progress';
 import { supabase } from '../../utils/supabase/auth';
 import { initialProfileData } from '../../data/profileSetupData';

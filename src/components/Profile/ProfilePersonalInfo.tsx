@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { User, Calendar, MapPin, Phone, Save, Edit3 } from 'lucide-react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
 
 interface ProfilePersonalInfoProps {
   userData: any;
@@ -61,7 +61,7 @@ export function ProfilePersonalInfo({ userData, onUpdateProfile }: ProfilePerson
             <p className="text-sm text-gray-500">Manage your basic personal details</p>
           </div>
         </div>
-        
+
         <Button
           onClick={() => isEditing ? handleSave() : setIsEditing(true)}
           className="bg-orange-500 hover:bg-orange-600 text-white"

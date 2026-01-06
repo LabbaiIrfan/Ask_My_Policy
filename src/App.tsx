@@ -1,21 +1,22 @@
 import { useState, useEffect } from 'react';
-import { SplashScreen } from './components/SplashScreen';
+import { SplashScreen } from './components/Splash/SplashScreen';
 import { LoginScreen } from './components/Login/LoginScreen';
-import { ProfessionalHeader } from './components/Header';
-import { ProfessionalSidebar } from './components/SideBar';
-import { PolicyCatalog } from './components/PolicyCatalog';
+import { ProfessionalHeader } from './components/Layout/Header';
+import { ProfessionalSidebar } from './components/Layout/SideBar';
+import { BottomNav } from './components/Layout/BottomNav';
+import { PolicyCatalog } from './components/PolicyCatalog/PolicyCatalog';
 import { ExploreScreen } from './components/Explore/ExploreScreen';
 import { MyPolicies } from './components/MyPolicies/MyPolicies';
 import { ComparisonScreen } from './components/Comparison/ComparisonScreen';
 import { ClaimsScreen } from './components/Claims/ClaimsScreen';
-import { ProfileScreen } from './components/ProfileScreen';
+import { ProfileScreen } from './components/Profile/ProfileScreen';
 import { ProfileSetup } from './components/ProfileSetup/ProfileSetup';
-import { FloatingChatButton } from './components/FloatingChatButton';
-import { GlossaryScreen } from './components/GlossaryScreen';
+import { FloatingChatButton } from './components/Shared/FloatingChatButton';
+import { GlossaryScreen } from './components/Glossary/GlossaryScreen';
 import { CompanyAnalysis } from './components/CompanyAnalysis/CompanyAnalysis';
 import { PolicyDetailScreen } from './components/PolicyDetail/PolicyDetailScreen';
 import { BranchLocatorScreen } from './components/BranchLocator/BranchLocatorScreen';
-import { BuyPolicyScreen } from './components/BuyPolicyScreen';
+import { BuyPolicyScreen } from './components/BuyPolicy/BuyPolicyScreen';
 
 import { useAuth } from './utils/supabase/auth';
 import { supabase } from './utils/supabase/info';
@@ -517,7 +518,7 @@ export default function App() {
               />
 
               {/* Content */}
-              <div className="flex-1 overflow-auto">{renderCurrentScreen()}</div>
+              <div className="flex-1 overflow-auto pb-20 lg:pb-0">{renderCurrentScreen()}</div>
             </div>
 
             {/* Mobile Sidebar */}
@@ -531,6 +532,14 @@ export default function App() {
               isDesktop={false}
               isLoggedIn={isLoggedIn}
               userName={userData.fullName}
+            />
+
+            {/* Bottom Navigation for Mobile */}
+            <BottomNav
+              currentScreen={appState}
+              onNavigate={handleNavigate}
+              onOpenMenu={() => setIsMobileSidebarOpen(true)}
+              isLoggedIn={isLoggedIn}
             />
 
             {/* Floating Chat Button */}

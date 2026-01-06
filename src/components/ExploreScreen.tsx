@@ -174,9 +174,9 @@ export function ExploreScreen({ onBuyPolicy, onComparePolicies }: ExploreScreenP
   // Live Search Effect
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
-      if (searchQuery.trim().length >= 2) {
+      if (searchQuery.trim().length > 0) {
         handleSearch();
-      } else if (searchQuery.trim().length === 0 && showResults && resultsHeader.includes('Search')) {
+      } else if (searchQuery.trim().length === 0) {
         setShowResults(false);
         setFilteredPolicies(policies);
       }
@@ -714,9 +714,9 @@ export function ExploreScreen({ onBuyPolicy, onComparePolicies }: ExploreScreenP
 
   return (
     <div className="min-h-screen bg-gray-50 pb-24">
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        {!showFilterWizard && !showResults && (
-          <div className="flex flex-col items-center justify-center min-h-[80vh] text-center max-w-4xl mx-auto py-12">
+      <div className="max-w-[95%] mx-auto px-4 py-6">
+        {!showFilterWizard && (
+          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center max-w-5xl mx-auto py-8">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -746,9 +746,10 @@ export function ExploreScreen({ onBuyPolicy, onComparePolicies }: ExploreScreenP
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search by policy name, company, or features..."
                         className="h-16 text-lg border-gray-200 focus:ring-primary/20 rounded-xl px-6"
-                        onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                      // removed onKeyPress as auto-search handles it
                       />
                     </div>
+                    {/* Search button removed/optional as it's auto-search now, but keeping for click */}
                     <Button
                       onClick={handleSearch}
                       className="h-16 px-8 bg-primary hover:bg-primary/90 text-white rounded-xl shadow-lg transition-transform hover:scale-105"
@@ -781,21 +782,57 @@ export function ExploreScreen({ onBuyPolicy, onComparePolicies }: ExploreScreenP
                 </div>
               </div>
 
-              {/* Quick Stats/Trust Badges */}
-              <div className="grid grid-cols-3 gap-8 mt-16 px-8">
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-gray-900 mb-1">35+</p>
-                  <p className="text-sm text-gray-500 font-medium">Top Insurers</p>
+              {/* Search Results Section - Moved Inside */}
+              {showResults && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="space-y-8 mt-12 text-left"
+                >
+                  <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-900">{resultsHeader}</h2>
+                      <p className="text-gray-600">{resultsSubheader}</p>
+                    </div>
+                  </div>
+
+                  {/* Recommended Policies */}
+                  <div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8 items-start">
+                      {filteredPolicies.filter(p => p.recommended).map((policy, index) =>
+                        renderPolicyCard(policy, true, index)
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Other Policies */}
+                  <div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+                      {filteredPolicies.filter(p => !p.recommended).map((policy, index) =>
+                        renderPolicyCard(policy, false, index)
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+
+              {!showResults && (
+                <div className="grid grid-cols-3 gap-8 mt-16 px-8">
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-gray-900 mb-1">35+</p>
+                    <p className="text-sm text-gray-500 font-medium">Top Insurers</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-gray-900 mb-1">500+</p>
+                    <p className="text-sm text-gray-500 font-medium">Policies Compared</p>
+                  </div>
+                  <div className="text-center">
+                    <p className="text-3xl font-bold text-gray-900 mb-1">1M+</p>
+                    <p className="text-sm text-gray-500 font-medium">Claims Settled</p>
+                  </div>
                 </div>
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-gray-900 mb-1">500+</p>
-                  <p className="text-sm text-gray-500 font-medium">Policies Compared</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-3xl font-bold text-gray-900 mb-1">1M+</p>
-                  <p className="text-sm text-gray-500 font-medium">Claims Settled</p>
-                </div>
-              </div>
+              )}
             </motion.div>
           </div>
         )}
@@ -875,55 +912,7 @@ export function ExploreScreen({ onBuyPolicy, onComparePolicies }: ExploreScreenP
           )}
         </AnimatePresence>
 
-        {/* Filter Results */}
-        {showResults && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="space-y-8"
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between sticky top-0 bg-gray-50 z-40 py-4 border-b border-gray-200">
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900">{resultsHeader}</h2>
-                <p className="text-gray-600">{resultsSubheader}</p>
-              </div>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowResults(false);
-                  setSearchQuery('');
-                  setFilteredPolicies(policies);
-                }}
-              >
-                Back to Explore
-              </Button>
-            </div>
-
-            {/* Recommended Policies */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center space-x-2">
-                <CheckCircle className="w-5 h-5 text-green-500" />
-                <span>Recommended for You</span>
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                {filteredPolicies.filter(p => p.recommended).map((policy, index) =>
-                  renderPolicyCard(policy, true, index)
-                )}
-              </div>
-            </div>
-
-            {/* Other Policies */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">{resultsHeader.includes('Search') ? 'Matching Plans' : 'Other Available Plans'}</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredPolicies.filter(p => !p.recommended).map((policy, index) =>
-                  renderPolicyCard(policy, false, index)
-                )}
-              </div>
-            </div>
-          </motion.div>
-        )}
+        {/* Filter Results (OLD PLACEHOLDER REMOVED, now inline) */}
       </div>
 
       {/* Comparison Box */}

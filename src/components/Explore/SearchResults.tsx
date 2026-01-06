@@ -1,7 +1,6 @@
 import { motion } from 'motion/react';
 import { PolicyCard } from './PolicyCard';
 import { type Policy } from '../../data/policies';
-import { BarChart2, X, ArrowRight } from 'lucide-react';
 
 interface SearchResultsProps {
     resultsHeader: string;
@@ -25,8 +24,6 @@ export function SearchResults({
     onToggleDetails,
     onToggleSelection,
     onBuyPolicy,
-    onCompare,
-    onClearSelection
 }: SearchResultsProps) {
 
     const recommendedPolicies = filteredPolicies.filter(p => p.recommended);

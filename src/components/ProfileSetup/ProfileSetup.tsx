@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, type Variants } from 'motion/react';
 import {
   User,
   DollarSign,
@@ -21,6 +21,26 @@ import { FinancialStep } from './FinancialStep';
 import { LifestyleStep } from './LifestyleStep';
 import { HealthStep } from './HealthStep';
 import { PolicyPreferencesStep } from './PolicyPreferencesStep';
+
+// Animation Variants
+const stepVariants: Variants = {
+  hidden: { opacity: 0, x: 20 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      type: "spring",
+      stiffness: 300,
+      damping: 30,
+      duration: 0.3
+    }
+  },
+  exit: {
+    opacity: 0,
+    x: -20,
+    transition: { duration: 0.2 }
+  }
+};
 
 interface ProfileSetupProps {
   userData: any;
@@ -213,13 +233,15 @@ export function ProfileSetup({ onComplete, onSkip }: ProfileSetupProps) {
             </div>
           </div>
 
+          {/* Content with Animation */}
           <AnimatePresence mode="wait">
             <motion.div
               key={currentStep}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ duration: 0.3 }}
+              variants={stepVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              className="w-full"
             >
               {renderStepContent()}
             </motion.div>

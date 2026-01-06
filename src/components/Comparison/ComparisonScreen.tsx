@@ -124,21 +124,29 @@ export function ComparisonScreen({ initialSelectedPolicies = [] }: ComparisonScr
 
         {/* Empty State */}
         {!isLoading && !error && selectedPolicyNames.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-96 bg-white rounded-xl border border-dashed border-gray-300 p-8 text-center animate-in fade-in zoom-in duration-500">
-            <div className="w-24 h-24 bg-orange-50 rounded-full flex items-center justify-center mb-6">
-              <ShieldCheck size={48} className="text-orange-500" />
+          <div className="relative overflow-hidden bg-white/60 backdrop-blur-md rounded-3xl border border-gray-100 shadow-premium p-8 md:p-12 text-center animate-in fade-in zoom-in duration-500">
+            <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 via-transparent to-orange-50/30" />
+
+            <div className="relative z-10 flex flex-col items-center">
+              <div className="w-24 h-24 bg-gradient-to-br from-orange-100 to-orange-50 rounded-full flex items-center justify-center mb-6 shadow-inner ring-4 ring-white">
+                <ShieldCheck size={48} className="text-orange-500" />
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 font-poppins">
+                Compare & Choose the Best
+              </h2>
+              <p className="text-gray-500 mb-8 max-w-lg text-lg leading-relaxed">
+                Don't guess with your health. Select up to 3 policies to see a detailed, side-by-side comparison of features, waiting periods, and premiums.
+              </p>
+              <button
+                onClick={handleModalOpen}
+                className="px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-2xl font-semibold hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-xl hover:shadow-orange-500/20 active:scale-95 flex items-center space-x-3 group"
+              >
+                <div className="bg-white/20 p-1.5 rounded-lg group-hover:bg-white/30 transition-colors">
+                  <Plus size={20} />
+                </div>
+                <span className="text-lg">Select Policies to Compare</span>
+              </button>
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Start Your Comparison</h2>
-            <p className="text-gray-600 mb-8 max-w-md">
-              Select up to 3 health insurance policies to see a detailed side-by-side comparison of features, benefits, and costs.
-            </p>
-            <button
-              onClick={handleModalOpen}
-              className="px-8 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-orange-700 transition-all shadow-lg hover:shadow-orange-500/30 flex items-center space-x-2"
-            >
-              <Plus size={20} />
-              <span>Select Policies</span>
-            </button>
           </div>
         )}
 

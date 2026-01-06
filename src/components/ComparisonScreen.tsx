@@ -590,12 +590,12 @@ export function ComparisonScreen(_props: ComparisonScreenProps) {
                 <table className="w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="text-left p-4 font-medium text-gray-900 min-w-[200px]">Features</th>
+                      <th className="text-left p-4 font-medium text-gray-900 w-[200px] min-w-[200px] max-w-[200px]">Features</th>
                       {selectedPolicyNames.map(name => (
-                        <th key={name} className="text-center p-4 font-medium text-gray-900 min-w-[150px]">
+                        <th key={name} className="text-center p-4 font-medium text-gray-900 w-[250px] min-w-[250px] max-w-[250px]">
                           <div className="flex flex-col items-center space-y-1">
                             <span className="text-lg">{allPolicies.find(p => p.name === name)?.icon}</span>
-                            <span className="text-sm">{name}</span>
+                            <span className="text-sm line-clamp-2" title={name}>{name}</span>
                           </div>
                         </th>
                       ))}
@@ -610,7 +610,7 @@ export function ComparisonScreen(_props: ComparisonScreenProps) {
                         transition={{ delay: index * 0.05 }}
                         className="border-t border-gray-100"
                       >
-                        <td className="p-4 font-medium text-gray-900">
+                        <td className="p-4 font-medium text-gray-900 w-[200px] min-w-[200px] max-w-[200px]">
                           <div className="flex items-center">
                             <span>{feature}</span>
                             <FeatureExplanation feature={feature} />
@@ -618,20 +618,28 @@ export function ComparisonScreen(_props: ComparisonScreenProps) {
                         </td>
                         {selectedPolicyNames.map(policyName => {
                           const policyFeatures = comparisonData[policyName];
-                          if (!policyFeatures) return <td key={policyName}></td>;
+                          if (!policyFeatures) return <td key={policyName} className="w-[250px] min-w-[250px] max-w-[250px]"></td>;
                           const val = featureDefinitions[feature as keyof typeof featureDefinitions].formatter(policyFeatures);
+
+                          // Determine if we should treat this as a list or plain text
+                          const isList = feature === 'Room Rent Limit' && val.includes('(');
+
                           return (
-                            <td key={policyName} className="p-4 text-center align-top">
-                              {feature === 'Room Rent Limit' && val.includes('(') ? (
-                                <ul className="inline-block text-left text-sm font-medium text-gray-700 list-disc list-inside">
-                                  {val.split('(').map(part => part.replace(/[()]/g, '').trim()).filter(Boolean).map((item, i) => (
-                                    <li key={i} className="whitespace-nowrap">{item.charAt(0).toUpperCase() + item.slice(1)}</li>
-                                  ))}
-                                </ul>
+                            <td key={policyName} className="p-4 text-center align-top w-[250px] min-w-[250px] max-w-[250px]">
+                              {isList ? (
+                                <div className="text-left text-sm font-medium text-gray-700 max-h-[150px] overflow-y-auto custom-scrollbar" title={val}>
+                                  <ul className="list-disc list-inside">
+                                    {val.split('(').map(part => part.replace(/[()]/g, '').trim()).filter(Boolean).map((item, i) => (
+                                      <li key={i} className="whitespace-normal leading-snug mb-1">{item.charAt(0).toUpperCase() + item.slice(1)}</li>
+                                    ))}
+                                  </ul>
+                                </div>
                               ) : (
-                                <span className={`px-3 py-2 rounded-lg text-sm font-medium border ${getFeatureColor(val, feature)}`}>
-                                  {val}
-                                </span>
+                                <div className="flex justify-center" title={val.toString()}>
+                                  <span className={`px-3 py-2 rounded-lg text-sm font-medium border ${getFeatureColor(val, feature)} block w-full line-clamp-4 whitespace-normal`}>
+                                    {val}
+                                  </span>
+                                </div>
                               )}
                             </td>
                           );

@@ -22,6 +22,7 @@ export interface Policy {
     ambulanceCover?: string;
     healthCheckup?: string;
     uniqueFeature?: string;
+    recommended?: boolean;
 }
 
 export const policies: Policy[] = [

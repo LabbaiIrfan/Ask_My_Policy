@@ -19,13 +19,13 @@ import {
   X
 } from 'lucide-react';
 
-import { policies } from '../data/policies';
+import { policies, type Policy } from '../data/policies';
 
 interface PolicyCatalogProps {
   onOpenMenu: () => void;
   onToggleSidebar?: () => void;
   onNavigateToDetail?: () => void;
-  onBuyPolicy?: (policyData: any) => void;
+  onBuyPolicy?: (policyData: Policy) => void;
   onComparePolicies?: (policies: string[]) => void;
 }
 
@@ -37,10 +37,10 @@ export function PolicyCatalog({ onBuyPolicy, onComparePolicies }: PolicyCatalogP
   const categories = [
     { id: 'All', name: 'All Plans', icon: Shield, count: 37 },
     { id: 'Individual/Floater', name: 'Individual/Floater', icon: Heart, count: 37 },
-    { id: 'Family', name: 'Family', icon: Shield, count: 6 },
-    { id: 'Senior', name: 'Senior Citizen', icon: Heart, count: 4 },
-    { id: 'Critical', name: 'Critical Illness', icon: Shield, count: 3 },
-    { id: 'Maternity', name: 'Maternity', icon: Heart, count: 3 }
+    { id: 'Family', name: 'Family', icon: Shield, count: 0 },
+    { id: 'Senior', name: 'Senior Citizen', icon: Heart, count: 0 },
+    { id: 'Critical', name: 'Critical Illness', icon: Shield, count: 0 },
+    { id: 'Maternity', name: 'Maternity', icon: Heart, count: 0 }
   ];
 
   const filteredPolicies = policies.filter(policy =>

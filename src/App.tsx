@@ -329,6 +329,7 @@ export default function App() {
             userData={isLoggedIn ? userData : null}
             onNavigateToDetail={navigateToDetail}
             onBuyPolicy={quickBuyPolicy}
+            onComparePolicies={navigateToComparison}
           />
         );
       case 'policies':

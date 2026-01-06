@@ -199,7 +199,7 @@ interface ComparisonScreenProps {
   initialSelectedPolicies?: string[];
 }
 
-export function ComparisonScreen({ initialSelectedPolicies = [], ...props }: ComparisonScreenProps) {
+export function ComparisonScreen({ initialSelectedPolicies = [] }: ComparisonScreenProps) {
   // --- State Management ---
   const [allPolicies, setAllPolicies] = useState<PolicyInfo[]>([]);
   const [selectedPolicyNames, setSelectedPolicyNames] = useState<string[]>(initialSelectedPolicies);

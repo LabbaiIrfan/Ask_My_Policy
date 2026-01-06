@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import {
   Bell,
-  User,
   ChevronDown,
   Menu,
   Home,
@@ -13,7 +12,6 @@ import {
   TrendingUp,
   Calendar
 } from 'lucide-react';
-import { Input } from './ui/input';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface ProfessionalHeaderProps {

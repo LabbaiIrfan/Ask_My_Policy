@@ -29,7 +29,7 @@ interface PolicyCatalogProps {
   onComparePolicies?: (policies: string[]) => void;
 }
 
-export function PolicyCatalog({ onNavigateToDetail, onBuyPolicy, onComparePolicies }: PolicyCatalogProps) {
+export function PolicyCatalog({ onBuyPolicy, onComparePolicies }: PolicyCatalogProps) {
   const [activeCategory, setActiveCategory] = useState('All');
   const [expandedPolicyId, setExpandedPolicyId] = useState<string | null>(null);
   const [selectedPolicies, setSelectedPolicies] = useState<string[]>([]);

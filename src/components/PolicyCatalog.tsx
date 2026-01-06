@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { 
+import {
   Star,
   Shield,
   Heart,
@@ -9,7 +9,15 @@ import {
   DollarSign,
   TrendingUp,
   ArrowRight,
+  Building,
+  Activity,
+  Truck,
+  Bed,
+  Calendar,
+  Sparkles,
 } from 'lucide-react';
+
+import { policies } from '../data/policies';
 
 interface PolicyCatalogProps {
   onOpenMenu: () => void;
@@ -20,156 +28,18 @@ interface PolicyCatalogProps {
 
 export function PolicyCatalog({ onNavigateToDetail, onBuyPolicy }: PolicyCatalogProps) {
   const [activeCategory, setActiveCategory] = useState('All');
+  const [expandedPolicyId, setExpandedPolicyId] = useState<string | null>(null);
 
   const categories = [
-    { id: 'All', name: 'All Plans', icon: Shield, count: 24 },
-    { id: 'Individual', name: 'Individual', icon: Heart, count: 8 },
+    { id: 'All', name: 'All Plans', icon: Shield, count: 37 },
+    { id: 'Individual/Floater', name: 'Individual/Floater', icon: Heart, count: 37 },
     { id: 'Family', name: 'Family', icon: Shield, count: 6 },
     { id: 'Senior', name: 'Senior Citizen', icon: Heart, count: 4 },
     { id: 'Critical', name: 'Critical Illness', icon: Shield, count: 3 },
     { id: 'Maternity', name: 'Maternity', icon: Heart, count: 3 }
   ];
 
-  const policies = [
-    {
-      id: '1',
-      name: 'HealthCare Premium Plus',
-      company: 'Star Health Insurance',
-      category: 'Individual',
-      rating: 4.8,
-      reviews: 2847,
-      premium: '₹18,500',
-      coverage: '₹10,00,000',
-      features: ['Cashless Hospitals', 'Pre & Post Hospitalization', 'Maternity Cover', 'Critical Illness'],
-      claimRatio: '89%',
-      waitingPeriod: '2 years',
-      tags: ['Bestseller'],
-      savings: 'Save ₹3,200',
-      icon: '🏥',
-      popular: true
-    },
-    {
-      id: '2',
-      name: 'Family Health Shield',
-      company: 'HDFC ERGO Health Insurance',
-      category: 'Family',
-      rating: 4.9,
-      reviews: 1923,
-      premium: '₹24,000',
-      coverage: '₹15,00,000',
-      features: ['Family Floater', 'Maternity Benefits', 'OPD Coverage', 'Annual Health Checkup'],
-      claimRatio: '93%',
-      waitingPeriod: '1 year',
-      tags: ['Top Rated'],
-      savings: 'Save ₹5,100',
-      icon: '👨‍👩‍👧‍👦',
-      popular: true
-    },
-    {
-      id: '3',
-      name: 'SeniorCare Complete',
-      company: 'National Insurance Company',
-      category: 'Senior',
-      rating: 4.7,
-      reviews: 1567,
-      premium: '₹28,800',
-      coverage: '₹3,00,000',
-      features: ['Pre-existing Disease Cover', 'Domiciliary Treatment', 'Alternative Treatment', 'Health Checkups'],
-      claimRatio: '87%',
-      waitingPeriod: '3 years',
-      tags: ['AI Recommended'],
-      savings: 'Save ₹4,400',
-      icon: '👴',
-      popular: false
-    },
-    {
-      id: '4',
-      name: 'Critical Illness Shield',
-      company: 'Max Bupa Health Insurance',
-      category: 'Critical',
-      rating: 4.6,
-      reviews: 892,
-      premium: '₹32,500',
-      coverage: '₹25,00,000',
-      features: ['Critical Illness Cover', 'Cancer Treatment', 'Organ Transplant', 'Heart Surgery Cover'],
-      claimRatio: '94%',
-      waitingPeriod: '90 days',
-      tags: ['Critical Care'],
-      savings: 'Save ₹6,800',
-      icon: '❤️‍🩹',
-      popular: false
-    },
-    {
-      id: '5',
-      name: 'MaternityPlus Care',
-      company: 'Religare Health Insurance',
-      category: 'Maternity',
-      rating: 4.5,
-      reviews: 645,
-      premium: '₹16,900',
-      coverage: '₹8,00,000',
-      features: ['Maternity Benefits', 'Newborn Baby Cover', 'Fertility Treatment', 'Vaccination Cover'],
-      claimRatio: '91%',
-      waitingPeriod: '9 months',
-      tags: ['Maternity'],
-      savings: 'Save ₹3,500',
-      icon: '🤱',
-      popular: false
-    },
-    {
-      id: '6',
-      name: 'BasicCare Essential',
-      company: 'Care Health Insurance',
-      category: 'Individual',
-      rating: 4.3,
-      reviews: 1234,
-      premium: '₹8,600',
-      coverage: '₹2,00,000',
-      features: ['Basic Hospitalization', 'Day Care Surgery', 'Emergency Ambulance', 'Health Checkups'],
-      claimRatio: '88%',
-      waitingPeriod: '1 year',
-      tags: ['Budget Friendly'],
-      savings: 'Save ₹1,800',
-      icon: '🏥',
-      popular: false
-    },
-    {
-      id: '7',
-      name: 'DiabetesCare Specialist',
-      company: 'Aditya Birla Health Insurance',
-      category: 'Individual',
-      rating: 4.6,
-      reviews: 987,
-      premium: '₹22,900',
-      coverage: '₹6,00,000',
-      features: ['Diabetes Management', 'Insulin Coverage', 'Regular Monitoring', 'Specialist Consultations'],
-      claimRatio: '90%',
-      waitingPeriod: '2 years',
-      tags: ['Disease Specific'],
-      savings: 'Save ₹4,200',
-      icon: '💉',
-      popular: false
-    },
-    {
-      id: '8',
-      name: 'WellnessPlus Complete',
-      company: 'Niva Bupa Health Insurance',
-      category: 'Family',
-      rating: 4.8,
-      reviews: 1456,
-      premium: '₹28,900',
-      coverage: '₹15,00,000',
-      features: ['Preventive Care', 'Health Coaching', 'Wellness Programs', 'Telemedicine Access'],
-      claimRatio: '92%',
-      waitingPeriod: '1 year',
-      tags: ['Wellness Focus'],
-      savings: 'Save ₹5,900',
-      icon: '🌟',
-      popular: true
-    }
-  ];
-
-  const filteredPolicies = policies.filter(policy => 
+  const filteredPolicies = policies.filter(policy =>
     activeCategory === 'All' || activeCategory === 'All Plans' || policy.category === activeCategory
   );
 
@@ -188,6 +58,10 @@ export function PolicyCatalog({ onNavigateToDetail, onBuyPolicy }: PolicyCatalog
     return colors[tag as keyof typeof colors] || 'bg-gray-50 text-gray-700 border-gray-200';
   };
 
+  const toggleDetails = (id: string) => {
+    setExpandedPolicyId(prev => prev === id ? null : id);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 py-6">
@@ -201,19 +75,17 @@ export function PolicyCatalog({ onNavigateToDetail, onBuyPolicy }: PolicyCatalog
                 onClick={() => setActiveCategory(category.id)}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all ${
-                  activeCategory === category.id
-                    ? 'bg-primary text-white shadow-md'
-                    : 'bg-white text-gray-700 border border-gray-200 hover:border-primary hover:text-primary'
-                }`}
+                className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all ${activeCategory === category.id
+                  ? 'bg-primary text-white shadow-md'
+                  : 'bg-white text-gray-700 border border-gray-200 hover:border-primary hover:text-primary'
+                  }`}
               >
                 <category.icon size={18} />
                 <span>{category.name}</span>
-                <span className={`px-2 py-1 rounded-full text-xs ${
-                  activeCategory === category.id
-                    ? 'bg-white/20 text-white'
-                    : 'bg-gray-100 text-gray-600'
-                }`}>
+                <span className={`px-2 py-1 rounded-full text-xs ${activeCategory === category.id
+                  ? 'bg-white/20 text-white'
+                  : 'bg-gray-100 text-gray-600'
+                  }`}>
                   {category.count}
                 </span>
               </motion.button>
@@ -229,7 +101,7 @@ export function PolicyCatalog({ onNavigateToDetail, onBuyPolicy }: PolicyCatalog
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 hover:border-primary/20"
+              className="bg-white rounded-xl p-6 border border-gray-100 hover:shadow-lg transition-all duration-300 hover:border-primary/20 flex flex-col"
             >
               {/* Policy Header */}
               <div className="flex items-start justify-between mb-4">
@@ -240,6 +112,7 @@ export function PolicyCatalog({ onNavigateToDetail, onBuyPolicy }: PolicyCatalog
                   <div>
                     <h3 className="font-bold text-gray-900">{policy.name}</h3>
                     <p className="text-sm text-gray-600">{policy.company}</p>
+                    <p className="text-xs text-gray-400 mt-1">{policy.category}</p>
                   </div>
                 </div>
                 {policy.popular && (
@@ -248,6 +121,14 @@ export function PolicyCatalog({ onNavigateToDetail, onBuyPolicy }: PolicyCatalog
                   </div>
                 )}
               </div>
+
+              {/* Unique Feature Banner */}
+              {policy.uniqueFeature && (
+                <div className="mb-4 bg-primary/5 border border-primary/10 rounded-lg p-3 flex items-start gap-2">
+                  <Sparkles className="text-primary mt-0.5 shrink-0" size={16} />
+                  <p className="text-xs text-primary font-medium leading-tight">{policy.uniqueFeature}</p>
+                </div>
+              )}
 
               {/* Rating */}
               <div className="flex items-center space-x-2 mb-4">
@@ -281,50 +162,116 @@ export function PolicyCatalog({ onNavigateToDetail, onBuyPolicy }: PolicyCatalog
                     <Shield className="text-green-600" size={14} />
                     <span className="text-xs text-green-600 font-medium">Coverage</span>
                   </div>
-                  <p className="font-bold text-green-700">{policy.coverage}</p>
+                  <p className="font-bold text-green-700 text-sm truncate" title={policy.coverage}>{policy.coverage}</p>
                 </div>
                 <div className="bg-blue-50 rounded-lg p-3">
                   <div className="flex items-center space-x-1 mb-1">
                     <DollarSign className="text-blue-600" size={14} />
                     <span className="text-xs text-blue-600 font-medium">Premium</span>
                   </div>
-                  <p className="font-bold text-blue-700">{policy.premium}</p>
+                  <p className="font-bold text-blue-700 text-sm truncate" title={policy.premium}>{policy.premium}</p>
                 </div>
               </div>
 
-              {/* Features */}
-              <div className="mb-4">
-                <h4 className="font-medium text-gray-900 mb-2">Key Features</h4>
+              {/* Key Features (Always visible) */}
+              <div className="mb-4 flex-grow">
                 <div className="space-y-1">
                   {policy.features.slice(0, 3).map((feature, idx) => (
                     <div key={idx} className="flex items-center space-x-2">
-                      <CheckCircle className="text-green-500" size={14} />
-                      <span className="text-sm text-gray-700">{feature}</span>
+                      <CheckCircle className="text-green-500 shrink-0" size={14} />
+                      <span className="text-sm text-gray-700 truncate">{feature}</span>
                     </div>
                   ))}
-                  {policy.features.length > 3 && (
-                    <p className="text-sm text-gray-500 ml-6">
-                      +{policy.features.length - 3} more benefits
-                    </p>
-                  )}
                 </div>
               </div>
 
-              {/* Savings */}
-              <div className="flex items-center justify-between mb-4">
+              {/* Expandable Details */}
+              {expandedPolicyId === policy.id && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mb-4 pt-4 border-t border-gray-100 space-y-3"
+                >
+                  {/* Extra Features */}
+                  {policy.features.length > 3 && (
+                    <div className="space-y-1 pl-2 border-l-2 border-gray-100 mb-2">
+                      {policy.features.slice(3).map((feature, idx) => (
+                        <div key={idx} className="flex items-center space-x-2">
+                          <span className="w-1.5 h-1.5 bg-gray-300 rounded-full shrink-0" />
+                          <span className="text-xs text-gray-600">{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Key Benefits */}
+                  {policy.keyBenefits && policy.keyBenefits.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs font-semibold text-gray-900">Benefits:</p>
+                      {policy.keyBenefits.map((benefit, idx) => (
+                        <div key={idx} className="flex items-center space-x-2">
+                          <Star className="text-orange-400 shrink-0" size={12} />
+                          <span className="text-xs text-gray-600">{benefit}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Technical Details Grid */}
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    {policy.networkHospitals && (
+                      <div className="flex items-center gap-1.5 text-gray-600">
+                        <Building size={14} className="text-gray-400 shrink-0" />
+                        <span className="truncate" title={`Network: ${policy.networkHospitals}`}>{policy.networkHospitals} Hospitals</span>
+                      </div>
+                    )}
+                    {policy.roomRent && (
+                      <div className="flex items-center gap-1.5 text-gray-600">
+                        <Bed size={14} className="text-gray-400 shrink-0" />
+                        <span className="truncate" title={`Room: ${policy.roomRent}`}>{policy.roomRent}</span>
+                      </div>
+                    )}
+                    {policy.ambulanceCover && (
+                      <div className="flex items-center gap-1.5 text-gray-600">
+                        <Truck size={14} className="text-gray-400 shrink-0" />
+                        <span className="truncate" title={`Ambulance: ${policy.ambulanceCover}`}>{policy.ambulanceCover}</span>
+                      </div>
+                    )}
+                    {policy.healthCheckup && (
+                      <div className="flex items-center gap-1.5 text-gray-600">
+                        <Activity size={14} className="text-gray-400 shrink-0" />
+                        <span className="truncate" title={`Health Checkup: ${policy.healthCheckup}`}>{policy.healthCheckup}</span>
+                      </div>
+                    )}
+                  </div>
+                  {(policy.preHospitalization || policy.postHospitalization) && (
+                    <div className="flex items-center gap-2 text-xs text-gray-500 bg-gray-50 p-2 rounded">
+                      <Calendar size={14} className="shrink-0" />
+                      <span>Pre: {policy.preHospitalization || 'N/A'}</span>
+                      <span>•</span>
+                      <span>Post: {policy.postHospitalization || 'N/A'}</span>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+
+
+              {/* Savings & Waiting */}
+              <div className="flex items-center justify-between mb-4 pt-2 border-t border-gray-50">
                 <div className="flex items-center space-x-1">
                   <TrendingUp className="text-green-500" size={16} />
                   <span className="text-sm font-medium text-green-600">{policy.savings}</span>
                 </div>
                 <div className="flex items-center space-x-1 text-xs text-gray-500">
                   <Clock size={12} />
-                  <span>Waiting: {policy.waitingPeriod}</span>
+                  <span>Wait: {policy.waitingPeriod}</span>
                 </div>
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-3">
-                <button 
+              <div className="space-y-3 mt-auto">
+                <button
                   onClick={() => onBuyPolicy && onBuyPolicy(policy)}
                   className="w-full bg-primary text-white py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors flex items-center justify-center space-x-2"
                 >
@@ -332,11 +279,14 @@ export function PolicyCatalog({ onNavigateToDetail, onBuyPolicy }: PolicyCatalog
                   <ArrowRight size={16} />
                 </button>
                 <div className="grid grid-cols-2 gap-3">
-                  <button 
-                    onClick={onNavigateToDetail}
-                    className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                  <button
+                    onClick={() => toggleDetails(policy.id)}
+                    className={`px-4 py-2 border rounded-lg font-medium transition-colors ${expandedPolicyId === policy.id
+                        ? 'border-primary text-primary bg-primary/5'
+                        : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                      }`}
                   >
-                    Details
+                    {expandedPolicyId === policy.id ? 'Less Info' : 'More Info'}
                   </button>
                   <button className="px-4 py-2 border border-primary text-primary rounded-lg font-medium hover:bg-primary/5 transition-colors">
                     Compare

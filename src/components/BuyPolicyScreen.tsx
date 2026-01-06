@@ -86,47 +86,47 @@ interface FormDataType {
   paymentMethod: string;
 }
 
-export function BuyPolicyScreen({ 
-  onBack, 
-  policyData, 
-  selectedAddOns = [], 
+export function BuyPolicyScreen({
+  onBack,
+  policyData,
+  selectedAddOns = [],
   selectedRiders = [],
-  userData 
+  userData
 }: BuyPolicyScreenProps) {
   const [currentStep, setCurrentStep] = useState(1);
   const [showSuccess, setShowSuccess] = useState(false);
   const [validationError, setValidationError] = useState('');
-  
+
   const [formData, setFormData] = useState<FormDataType>({
-     personalDetails: {
-       fullName: userData?.fullName || '',
-       email: userData?.email || '',
-       phone: userData?.phone || '',
-       dateOfBirth: userData?.dateOfBirth || '',
-       gender: userData?.gender || '',
-       address: userData?.address || '',
-       city: userData?.city || '',
-       state: userData?.state || '',
-       pincode: userData?.pincode || '',
-       panNumber: '',
-       aadharNumber: ''
-     },
-     nomineeDetails: {
-       name: '',
-       relationship: '',
-       dateOfBirth: '',
-       phone: '',
-       email: ''
-     },
-     documents: {
+    personalDetails: {
+      fullName: userData?.fullName || '',
+      email: userData?.email || '',
+      phone: userData?.phone || '',
+      dateOfBirth: userData?.dateOfBirth || '',
+      gender: userData?.gender || '',
+      address: userData?.address || '',
+      city: userData?.city || '',
+      state: userData?.state || '',
+      pincode: userData?.pincode || '',
+      panNumber: '',
+      aadharNumber: ''
+    },
+    nomineeDetails: {
+      name: '',
+      relationship: '',
+      dateOfBirth: '',
+      phone: '',
+      email: ''
+    },
+    documents: {
       panCard: { name: 'PAN Card', file: null, status: 'pending' },
       aadharCard: { name: 'Aadhar Card', file: null, status: 'pending' },
       photo: { name: 'Passport Size Photo', file: null, status: 'pending' },
       addressProof: { name: 'Address Proof', file: null, status: 'pending' }
-     },
-     medicalHistory: {} as Record<number, boolean>,
-     paymentMethod: 'card'
-   });
+    },
+    medicalHistory: {} as Record<number, boolean>,
+    paymentMethod: 'card'
+  });
 
   const calculatePremium = () => {
     const basePremium = 18500;
@@ -134,7 +134,7 @@ export function BuyPolicyScreen({
     const ridersPremium = selectedRiders.length * 800;
     const gst = (basePremium + addOnsPremium + ridersPremium) * 0.18;
     const total = basePremium + addOnsPremium + ridersPremium + gst;
-    
+
     return {
       base: basePremium,
       addOns: addOnsPremium,
@@ -215,16 +215,16 @@ export function BuyPolicyScreen({
       case 1:
         return true;
       case 2:
-        return formData.personalDetails.fullName && 
-               formData.personalDetails.email && 
-               formData.personalDetails.phone &&
-               formData.personalDetails.dateOfBirth;
+        return formData.personalDetails.fullName &&
+          formData.personalDetails.email &&
+          formData.personalDetails.phone &&
+          formData.personalDetails.dateOfBirth;
       case 3:
-        return formData.nomineeDetails.name && 
-               formData.nomineeDetails.relationship;
+        return formData.nomineeDetails.name &&
+          formData.nomineeDetails.relationship;
       case 4:
-        return formData.documents.panCard.status === 'uploaded' && 
-               formData.documents.aadharCard.status === 'uploaded';
+        return formData.documents.panCard.status === 'uploaded' &&
+          formData.documents.aadharCard.status === 'uploaded';
       case 5:
         return Object.keys(formData.medicalHistory).length === medicalQuestions.length;
       case 6:
@@ -266,7 +266,7 @@ export function BuyPolicyScreen({
       setTimeout(() => setValidationError(''), 3000);
       return;
     }
-    
+
     if (currentStep < steps.length && canProceed()) {
       setValidationError('');
       setCurrentStep(currentStep + 1);
@@ -298,11 +298,11 @@ export function BuyPolicyScreen({
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="w-24 h-24 bg-gradient-orange rounded-full flex items-center justify-center mx-auto mb-6 shadow-premium"
+              className="w-24 h-24 bg-gradient-to-r from-[#FF6F00] to-[#FFA726] rounded-full flex items-center justify-center mx-auto mb-6 shadow-premium"
             >
               <CheckCircle className="w-12 h-12 text-white" />
             </motion.div>
-            
+
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -311,7 +311,7 @@ export function BuyPolicyScreen({
             >
               Policy Purchased Successfully!
             </motion.h1>
-            
+
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -342,10 +342,10 @@ export function BuyPolicyScreen({
               <div className="flex items-center justify-between">
                 <span className="text-gray-600">Valid Until</span>
                 <span className="text-gray-900">
-                  {new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', { 
-                    day: 'numeric', 
-                    month: 'long', 
-                    year: 'numeric' 
+                  {new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
                   })}
                 </span>
               </div>
@@ -357,14 +357,14 @@ export function BuyPolicyScreen({
               transition={{ delay: 0.6 }}
               className="flex flex-col sm:flex-row gap-4"
             >
-              <button 
-                className="flex-1 bg-gradient-orange text-white py-3 px-6 rounded-xl hover:shadow-premium transition-all duration-300 flex items-center justify-center space-x-2"
+              <button
+                className="flex-1 bg-gradient-to-r from-[#FF6F00] to-[#FFA726] text-white py-3 px-6 rounded-xl hover:shadow-premium transition-all duration-300 flex items-center justify-center space-x-2"
                 onClick={onBack}
               >
                 <Download className="w-5 h-5" />
                 <span>Download Policy</span>
               </button>
-              <button 
+              <button
                 className="flex-1 bg-white text-gray-700 py-3 px-6 rounded-xl border border-gray-200 hover:border-orange-300 transition-all duration-300"
                 onClick={onBack}
               >
@@ -381,8 +381,8 @@ export function BuyPolicyScreen({
     <div className="min-h-screen bg-gray-50">
       <div className="glass-card border-b border-gray-200 sticky top-0 z-10 bg-white/95 backdrop-blur-lg">
         <div className="w-full bg-gray-200 h-1">
-          <motion.div 
-            className="h-full bg-gradient-orange"
+          <motion.div
+            className="h-full bg-gradient-to-r from-[#FF6F00] to-[#FFA726]"
             initial={{ width: 0 }}
             animate={{ width: `${(currentStep / steps.length) * 100}%` }}
             transition={{ duration: 0.5, ease: "easeInOut" }}
@@ -416,13 +416,12 @@ export function BuyPolicyScreen({
                       backgroundColor: currentStep > step.id ? '#10b981' : currentStep === step.id ? '#FF6F00' : '#e5e7eb'
                     }}
                     transition={{ duration: 0.3 }}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${
-                      currentStep > step.id
+                    className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${currentStep > step.id
                         ? 'text-white shadow-soft'
                         : currentStep === step.id
-                        ? 'text-white shadow-premium'
-                        : 'text-gray-500'
-                    }`}
+                          ? 'text-white shadow-premium'
+                          : 'text-gray-500'
+                      }`}
                   >
                     {currentStep > step.id ? (
                       <motion.div
@@ -437,9 +436,8 @@ export function BuyPolicyScreen({
                     )}
                   </motion.div>
                   <span
-                    className={`mt-2 text-xs hidden sm:block transition-colors duration-300 ${
-                      currentStep >= step.id ? 'text-gray-900 font-medium' : 'text-gray-500'
-                    }`}
+                    className={`mt-2 text-xs hidden sm:block transition-colors duration-300 ${currentStep >= step.id ? 'text-gray-900 font-medium' : 'text-gray-500'
+                      }`}
                   >
                     {step.name}
                   </span>
@@ -486,7 +484,7 @@ export function BuyPolicyScreen({
 
                   <div className="mb-6">
                     <div className="flex items-start space-x-4 glass-card rounded-xl p-6 border border-orange-100/30">
-                      <div className="w-16 h-16 bg-gradient-orange rounded-2xl flex items-center justify-center flex-shrink-0 shadow-premium">
+                      <div className="w-16 h-16 bg-gradient-to-r from-[#FF6F00] to-[#FFA726] rounded-2xl flex items-center justify-center flex-shrink-0 shadow-premium">
                         <Shield className="w-8 h-8 text-white" />
                       </div>
                       <div className="flex-1">
@@ -561,7 +559,7 @@ export function BuyPolicyScreen({
                     onClick={handleNext}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full py-4 rounded-xl text-white bg-gradient-orange hover:shadow-premium transition-all duration-300 flex items-center justify-center space-x-2 shadow-soft"
+                    className="w-full py-4 rounded-xl text-white bg-gradient-to-r from-[#FF6F00] to-[#FFA726] hover:shadow-premium transition-all duration-300 flex items-center justify-center space-x-2 shadow-soft"
                   >
                     <span className="font-medium">Continue to Personal Details</span>
                     <ChevronRight className="w-5 h-5" />
@@ -845,17 +843,15 @@ export function BuyPolicyScreen({
                     {(Object.keys(formData.documents) as Array<keyof typeof formData.documents>).map((docKey) => {
                       const doc = formData.documents[docKey];
                       const isRequired = docKey === 'panCard' || docKey === 'aadharCard';
-                      
+
                       return (
                         <div key={docKey} className="glass-card rounded-xl p-6 border border-gray-200">
                           <div className="flex items-start justify-between mb-4">
                             <div className="flex items-center space-x-3">
-                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                                doc.status === 'uploaded' ? 'bg-green-50' : 'bg-gray-100'
-                              }`}>
-                                <FileText className={`w-5 h-5 ${
-                                  doc.status === 'uploaded' ? 'text-green-600' : 'text-gray-600'
-                                }`} />
+                              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${doc.status === 'uploaded' ? 'bg-green-50' : 'bg-gray-100'
+                                }`}>
+                                <FileText className={`w-5 h-5 ${doc.status === 'uploaded' ? 'text-green-600' : 'text-gray-600'
+                                  }`} />
                               </div>
                               <div>
                                 <h4 className="text-gray-900">
@@ -863,13 +859,13 @@ export function BuyPolicyScreen({
                                   {isRequired && <span className="text-red-500 ml-1">*</span>}
                                 </h4>
                                 <p className="text-sm text-gray-500">
-                                  {doc.status === 'uploaded' 
-                                    ? doc.file?.name 
+                                  {doc.status === 'uploaded'
+                                    ? doc.file?.name
                                     : 'PDF, JPG, PNG (Max 5MB)'}
                                 </p>
                               </div>
                             </div>
-                            
+
                             {doc.status === 'uploaded' ? (
                               <button
                                 onClick={() => removeDocument(docKey)}
@@ -888,14 +884,14 @@ export function BuyPolicyScreen({
                                     if (file) handleDocumentUpload(docKey, file);
                                   }}
                                 />
-                                <div className="px-4 py-2 bg-gradient-orange text-white rounded-lg hover:shadow-premium transition-all duration-300 flex items-center space-x-2">
+                                <div className="px-4 py-2 bg-gradient-to-r from-[#FF6F00] to-[#FFA726] text-white rounded-lg hover:shadow-premium transition-all duration-300 flex items-center space-x-2">
                                   <Upload className="w-4 h-4" />
                                   <span>Upload</span>
                                 </div>
                               </label>
                             )}
                           </div>
-                          
+
                           {doc.status === 'uploaded' && (
                             <div className="flex items-center space-x-2 text-green-600 text-sm">
                               <Check className="w-4 h-4" />
@@ -950,21 +946,19 @@ export function BuyPolicyScreen({
                         <div className="flex space-x-4">
                           <button
                             onClick={() => updateMedicalAnswer(q.id, true)}
-                            className={`flex-1 py-3 px-6 rounded-xl transition-all duration-300 ${
-                              formData.medicalHistory[q.id] === true
+                            className={`flex-1 py-3 px-6 rounded-xl transition-all duration-300 ${formData.medicalHistory[q.id] === true
                                 ? 'bg-orange-500 text-white shadow-soft'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
+                              }`}
                           >
                             Yes
                           </button>
                           <button
                             onClick={() => updateMedicalAnswer(q.id, false)}
-                            className={`flex-1 py-3 px-6 rounded-xl transition-all duration-300 ${
-                              formData.medicalHistory[q.id] === false
+                            className={`flex-1 py-3 px-6 rounded-xl transition-all duration-300 ${formData.medicalHistory[q.id] === false
                                 ? 'bg-green-500 text-white shadow-soft'
                                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
+                              }`}
                           >
                             No
                           </button>
@@ -1065,18 +1059,15 @@ export function BuyPolicyScreen({
                         <button
                           key={method.id}
                           onClick={() => setFormData(prev => ({ ...prev, paymentMethod: method.id }))}
-                          className={`p-4 rounded-xl border-2 transition-all duration-300 ${
-                            formData.paymentMethod === method.id
+                          className={`p-4 rounded-xl border-2 transition-all duration-300 ${formData.paymentMethod === method.id
                               ? 'border-orange-500 bg-orange-50'
                               : 'border-gray-200 hover:border-orange-200'
-                          }`}
+                            }`}
                         >
-                          <method.icon className={`w-6 h-6 mx-auto mb-2 ${
-                            formData.paymentMethod === method.id ? 'text-orange-600' : 'text-gray-600'
-                          }`} />
-                          <span className={`text-sm ${
-                            formData.paymentMethod === method.id ? 'text-orange-900' : 'text-gray-700'
-                          }`}>
+                          <method.icon className={`w-6 h-6 mx-auto mb-2 ${formData.paymentMethod === method.id ? 'text-orange-600' : 'text-gray-600'
+                            }`} />
+                          <span className={`text-sm ${formData.paymentMethod === method.id ? 'text-orange-900' : 'text-gray-700'
+                            }`}>
                             {method.name}
                           </span>
                         </button>
@@ -1156,8 +1147,8 @@ export function BuyPolicyScreen({
                   </motion.div>
                 )}
               </AnimatePresence>
-              
-              <motion.div 
+
+              <motion.div
                 className="flex items-center justify-between gap-4"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -1182,11 +1173,10 @@ export function BuyPolicyScreen({
                     disabled={!canProceed()}
                     whileHover={canProceed() ? { scale: 1.02 } : {}}
                     whileTap={canProceed() ? { scale: 0.98 } : {}}
-                    className={`px-8 py-3 rounded-xl text-white transition-all duration-300 flex items-center space-x-2 ${
-                      canProceed()
-                        ? 'bg-gradient-orange hover:shadow-premium cursor-pointer shadow-soft'
+                    className={`px-8 py-3 rounded-xl text-white transition-all duration-300 flex items-center space-x-2 ${canProceed()
+                        ? 'bg-gradient-to-r from-[#FF6F00] to-[#FFA726] hover:shadow-premium cursor-pointer shadow-soft'
                         : 'bg-gray-300 cursor-not-allowed opacity-60'
-                    }`}
+                      }`}
                   >
                     <span className="font-medium">Continue to {steps[currentStep]?.name}</span>
                     <ChevronRight className="w-5 h-5" />
@@ -1196,7 +1186,7 @@ export function BuyPolicyScreen({
                     onClick={handlePayment}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="px-8 py-4 rounded-xl text-white bg-gradient-orange hover:shadow-premium transition-all duration-300 flex items-center space-x-2 shadow-premium"
+                    className="px-8 py-4 rounded-xl text-white bg-gradient-to-r from-[#FF6F00] to-[#FFA726] hover:shadow-premium transition-all duration-300 flex items-center space-x-2 shadow-premium"
                   >
                     <Lock className="w-5 h-5" />
                     <span className="font-medium">Complete Payment - ₹{premium.total.toLocaleString()}</span>
@@ -1209,34 +1199,34 @@ export function BuyPolicyScreen({
           <div className="lg:col-span-1">
             <div className="glass-card rounded-2xl lg:rounded-3xl p-6 lg:p-8 shadow-soft border border-orange-100/50 sticky top-24">
               <h3 className="text-gray-900 mb-6">Premium Summary</h3>
-              
+
               <div className="space-y-4 mb-6">
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">Base Premium</span>
                   <span className="text-gray-900">₹{premium.base.toLocaleString()}</span>
                 </div>
-                
+
                 {premium.addOns > 0 && (
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Add-Ons</span>
                     <span className="text-gray-900">₹{premium.addOns.toLocaleString()}</span>
                   </div>
                 )}
-                
+
                 {premium.riders > 0 && (
                   <div className="flex items-center justify-between">
                     <span className="text-gray-600">Riders</span>
                     <span className="text-gray-900">₹{premium.riders.toLocaleString()}</span>
                   </div>
                 )}
-                
+
                 <div className="flex items-center justify-between">
                   <span className="text-gray-600">GST (18%)</span>
                   <span className="text-gray-900">₹{premium.gst.toLocaleString()}</span>
                 </div>
-                
+
                 <div className="h-px bg-gray-200"></div>
-                
+
                 <div className="flex items-center justify-between">
                   <span className="text-gray-900">Total Amount</span>
                   <span className="text-2xl text-orange-600">₹{premium.total.toLocaleString()}</span>

@@ -454,7 +454,7 @@ export default function App() {
               <ProfessionalSidebar
                 isOpen={true}
                 isCollapsed={isDesktopSidebarCollapsed}
-                onClose={() => {}}
+                onClose={() => { }}
                 onToggle={toggleDesktopSidebar}
                 onNavigate={handleNavigate}
                 onLogout={handleLogout}
@@ -467,39 +467,39 @@ export default function App() {
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex
-- flex-col overflow-hidden">
+            <div className="flex-1 flex flex-col overflow-hidden">
               <ProfessionalHeader
                 userName={isLoggedIn ? userData.fullName : ''}
                 isLoggedIn={isLoggedIn}
                 onOpenMenu={() => setIsMobileSidebarOpen(true)}
                 onLogin={() => setAppState('login')}
+                onLogout={handleLogout}
                 title={
                   appState === 'catalog'
                     ? 'Health Insurance Plans'
                     : appState === 'policies'
-                    ? isLoggedIn
-                      ? 'My Health Policies'
-                      : 'Health Insurance Plans'
-                    : appState === 'claims'
-                    ? 'Health Claims'
-                    : appState === 'explore'
-                    ? 'Explore Health Plans'
-                    : appState === 'compare'
-                    ? 'Plan Comparison'
-                    : appState === 'profile'
-                    ? 'Health Profile'
-                    : appState === 'glossary'
-                    ? 'Insurance Glossary'
-                    : appState === 'analysis'
-                    ? 'Company Analysis'
-                    : appState === 'policy-detail'
-                    ? 'Policy Details'
-                    : appState === 'branch-locator'
-                    ? 'Branch Locator'
-                    : appState === 'buy-policy'
-                    ? 'Complete Purchase'
-                    : 'Health Insurance Plans'
+                      ? isLoggedIn
+                        ? 'My Health Policies'
+                        : 'Health Insurance Plans'
+                      : appState === 'claims'
+                        ? 'Health Claims'
+                        : appState === 'explore'
+                          ? 'Explore Health Plans'
+                          : appState === 'compare'
+                            ? 'Plan Comparison'
+                            : appState === 'profile'
+                              ? 'Health Profile'
+                              : appState === 'glossary'
+                                ? 'Insurance Glossary'
+                                : appState === 'analysis'
+                                  ? 'Company Analysis'
+                                  : appState === 'policy-detail'
+                                    ? 'Policy Details'
+                                    : appState === 'branch-locator'
+                                      ? 'Branch Locator'
+                                      : appState === 'buy-policy'
+                                        ? 'Complete Purchase'
+                                        : 'Health Insurance Plans'
                 }
                 breadcrumbs={[{ label: 'HealthInsureAI' }]}
               />

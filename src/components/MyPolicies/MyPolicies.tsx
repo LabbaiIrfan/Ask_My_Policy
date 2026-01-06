@@ -15,7 +15,7 @@ export function MyPolicies({ }: MyPoliciesProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-6">
+      <div className="max-w-7xl mx-auto px-4 py-6 pb-24 lg:pb-6">
 
         {/* Summary Stats */}
         <MyPoliciesStats

@@ -139,7 +139,7 @@ export function FloatingChatButton() {
         initial={{ scale: 0, rotate: -180 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ type: "spring", stiffness: 200, damping: 20 }}
-        className="fixed bottom-6 right-6 z-50"
+        className="fixed bottom-24 lg:bottom-6 right-6 z-50"
       >
         <motion.button
           whileHover={{ scale: 1.1, rotate: 5 }}
@@ -227,8 +227,8 @@ export function FloatingChatButton() {
                           )}
                           <div
                             className={`p-4 rounded-2xl shadow-sm relative overflow-hidden ${message.isBot
-                                ? 'bg-gradient-to-r from-white to-orange-50/50 text-foreground border border-orange-100/50'
-                                : 'gradient-orange text-white shadow-lg shadow-orange-200/50'
+                              ? 'bg-gradient-to-r from-white to-orange-50/50 text-foreground border border-orange-100/50'
+                              : 'gradient-orange text-white shadow-lg shadow-orange-200/50'
                               }`}
                           >
                             {message.isBot && (
@@ -295,8 +295,8 @@ export function FloatingChatButton() {
                         <button
                           onClick={toggleVoice}
                           className={`absolute right-4 top-1/2 transform -translate-y-1/2 p-2 rounded-xl transition-all duration-200 ${isListening
-                              ? 'bg-orange-500 text-white animate-pulse shadow-lg'
-                              : 'text-muted-foreground hover:text-orange-500 hover:bg-orange-50'
+                            ? 'bg-orange-500 text-white animate-pulse shadow-lg'
+                            : 'text-muted-foreground hover:text-orange-500 hover:bg-orange-50'
                             }`}
                         >
                           {isListening ? <MicOff size={18} /> : <Mic size={18} />}

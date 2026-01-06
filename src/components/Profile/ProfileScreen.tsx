@@ -9,7 +9,7 @@ interface ProfileScreenProps {
   userName: string;
 }
 
-export function ProfileScreen({  userName }: ProfileScreenProps) {
+export function ProfileScreen({ userName }: ProfileScreenProps) {
   const [activeTab, setActiveTab] = useState('personal');
   const [userData, setUserData] = useState({
     fullName: userName,
@@ -56,7 +56,7 @@ export function ProfileScreen({  userName }: ProfileScreenProps) {
                 <p className="text-gray-500">{userData.email}</p>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <div className="text-right">
                 <p className="text-sm text-gray-500">Profile Completion</p>
@@ -80,7 +80,7 @@ export function ProfileScreen({  userName }: ProfileScreenProps) {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-6 py-8">
+      <div className="max-w-7xl mx-auto px-6 py-8 pb-24 lg:pb-8">
         <div className="flex flex-col lg:flex-row gap-8">
           <div className="lg:w-80 flex-shrink-0">
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -90,24 +90,21 @@ export function ProfileScreen({  userName }: ProfileScreenProps) {
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${
-                      activeTab === tab.id
+                    className={`w-full flex items-center justify-between p-3 rounded-lg transition-all duration-200 ${activeTab === tab.id
                         ? 'bg-orange-50 text-orange-700 border border-orange-200'
                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center space-x-3">
-                      <tab.icon className={`w-5 h-5 ${
-                        activeTab === tab.id ? 'text-orange-600' : 'text-gray-400'
-                      }`} />
+                      <tab.icon className={`w-5 h-5 ${activeTab === tab.id ? 'text-orange-600' : 'text-gray-400'
+                        }`} />
                       <div className="text-left">
                         <p className="font-medium">{tab.label}</p>
                         <p className="text-xs text-gray-500">{tab.description}</p>
                       </div>
                     </div>
-                    <ChevronRight className={`w-4 h-4 transition-transform ${
-                      activeTab === tab.id ? 'rotate-90 text-orange-600' : 'text-gray-400'
-                    }`} />
+                    <ChevronRight className={`w-4 h-4 transition-transform ${activeTab === tab.id ? 'rotate-90 text-orange-600' : 'text-gray-400'
+                      }`} />
                   </button>
                 ))}
               </nav>

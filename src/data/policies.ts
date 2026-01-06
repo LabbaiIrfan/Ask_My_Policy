@@ -23,6 +23,7 @@ export interface Policy {
     healthCheckup?: string;
     uniqueFeature?: string;
     recommended?: boolean;
+    coverage_analysis?: string;
 }
 
 export const policies: Policy[] = [

@@ -67,11 +67,18 @@ export function PolicyCard({
                 }`}
         >
             {isRecommended && (
-                <div className="flex items-center space-x-2 mb-4">
-                    <CheckCircle className="w-5 h-5 text-green-500" />
-                    <span className="text-sm font-medium text-green-700 bg-green-50 px-2 py-1 rounded-md">
-                        Recommended for You
-                    </span>
+                <div className="flex flex-col gap-2 mb-4">
+                    <div className="flex items-center space-x-2">
+                        <CheckCircle className="w-5 h-5 text-green-500" />
+                        <span className="text-sm font-medium text-green-700 bg-green-50 px-2 py-1 rounded-md">
+                            Recommended for You
+                        </span>
+                    </div>
+                    {policy.coverage_analysis && (
+                        <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 text-sm text-gray-700">
+                            <strong>Analysis:</strong> {policy.coverage_analysis}
+                        </div>
+                    )}
                 </div>
             )}
 

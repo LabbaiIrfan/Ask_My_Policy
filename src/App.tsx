@@ -60,6 +60,7 @@ export default function App() {
   const [isDesktopSidebarCollapsed, setIsDesktopSidebarCollapsed] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [buyPolicyData, setBuyPolicyData] = useState<any>(null);
+  const [comparisonPolicies, setComparisonPolicies] = useState<string[]>([]);
   const [userData, setUserData] = useState<UserData>({
     fullName: '',
     email: '',
@@ -248,6 +249,12 @@ export default function App() {
     setAppState('buy-policy');
   };
 
+  const navigateToComparison = (policies: string[]) => {
+    setComparisonPolicies(policies);
+    setPreviousState(appState);
+    setAppState('compare');
+  };
+
   const quickBuyPolicy = (policy: any) => {
     let description = 'Comprehensive health insurance coverage';
 
@@ -336,6 +343,7 @@ export default function App() {
             onToggleSidebar={toggleDesktopSidebar}
             onNavigateToDetail={navigateToDetail}
             onBuyPolicy={quickBuyPolicy}
+            onComparePolicies={navigateToComparison}
           />
         );
       case 'compare':
@@ -343,6 +351,7 @@ export default function App() {
           <ComparisonScreen
             onOpenMenu={openMobileMenu}
             onToggleSidebar={toggleDesktopSidebar}
+            initialSelectedPolicies={comparisonPolicies}
           />
         );
       case 'claims':
@@ -365,6 +374,7 @@ export default function App() {
             onToggleSidebar={toggleDesktopSidebar}
             onNavigateToDetail={navigateToDetail}
             onBuyPolicy={quickBuyPolicy}
+            onComparePolicies={navigateToComparison}
           />
         );
       case 'glossary':
@@ -415,6 +425,7 @@ export default function App() {
             onToggleSidebar={toggleDesktopSidebar}
             onNavigateToDetail={navigateToDetail}
             onBuyPolicy={quickBuyPolicy}
+            onComparePolicies={navigateToComparison}
           />
         );
     }

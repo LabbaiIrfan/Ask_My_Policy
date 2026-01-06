@@ -196,12 +196,13 @@ const PolicySelectionModal = ({
 interface ComparisonScreenProps {
   onOpenMenu?: () => void;
   onToggleSidebar?: () => void;
+  initialSelectedPolicies?: string[];
 }
 
-export function ComparisonScreen(_props: ComparisonScreenProps) {
+export function ComparisonScreen({ initialSelectedPolicies = [], ...props }: ComparisonScreenProps) {
   // --- State Management ---
   const [allPolicies, setAllPolicies] = useState<PolicyInfo[]>([]);
-  const [selectedPolicyNames, setSelectedPolicyNames] = useState<string[]>([]);
+  const [selectedPolicyNames, setSelectedPolicyNames] = useState<string[]>(initialSelectedPolicies);
   const [comparisonData, setComparisonData] = useState<ComparisonData | null>(null);
   const [aiAnalysis, setAiAnalysis] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);

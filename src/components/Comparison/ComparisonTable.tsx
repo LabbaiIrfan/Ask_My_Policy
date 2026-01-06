@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef,} from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, HelpCircle, ArrowRight, ChevronRight, Check } from 'lucide-react';
+import { X, HelpCircle, ArrowRight, ChevronRight, } from 'lucide-react';
 import { type PolicyInfo, type ComparisonData, featureDefinitions } from '../../data/comparisonData';
 
 interface ComparisonTableProps {
@@ -127,7 +127,7 @@ export function ComparisonTable({
                     ref={scrollContainerRef}
                     className="flex overflow-x-auto snap-x snap-mandatory px-4 pb-6 space-x-4 no-scrollbar -mx-4"
                 >
-                    {selectedPolicyNames.map((policyName, index) => {
+                    {selectedPolicyNames.map((policyName, ) => {
                         const policyDetails = allPolicies.find(p => p.name === policyName);
                         const policyFeatures = comparisonData[policyName];
                         if (!policyDetails || !policyFeatures) return null;
@@ -243,7 +243,7 @@ export function ComparisonTable({
                             </tr>
                         </thead>
                         <tbody>
-                            {compareFeatures.map((feature, index) => (
+                            {compareFeatures.map((feature,) => (
                                 <tr
                                     key={feature}
                                     className="group hover:bg-gray-50/50 transition-colors border-b border-gray-100 last:border-none"
